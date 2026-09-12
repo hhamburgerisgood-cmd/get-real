@@ -1,0 +1,8 @@
+﻿# OS metadata
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Temp files
+*.tmp
+*.log

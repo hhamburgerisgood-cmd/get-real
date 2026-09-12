@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Get Real - Manga, Chat, Board & Stuff</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
+  <script src="account.js"></script>
+</head>
+<body>
+
+  <!-- ========================================================
+       VIEW 0: NEAL.FUN HOMEPAGE HUB
+       ======================================================== -->
+  <div class="app-view active" id="view-hub" style="overflow-y:auto;">
+    <header class="hub-header">
+      <div class="hub-top-bar">
+        <div class="hub-theme-tools" style="display:inline-flex;align-items:center;gap:8px;">
+          <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Cloud Sync">
+            <img src="assets/logo_avatar.gif" class="account-avatar-mini" id="hub-account-avatar" alt="Avatar">
+            <span class="account-username-text" id="hub-account-name">@AnonCat</span>
+          </button>
+          <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
+            <span class="theme-mode-text">☀️ Light Mode</span>
+          </button>
+        </div>
+      </div>
+      <div class="hub-title" onclick="switchMainView('hub')">
+        GET
+        <span class="hub-logo-wrap" title="Get Real!">
+          <img src="assets/logo_avatar.gif" class="hub-logo-cat" alt="Elgatitolover Spinning Cat Logo">
+        </span>
+        REAL
+      </div>
+      <div class="hub-subtitle">manga, chat, forum and stuff for school & beyond</div>
+    </header>
+
+    <div class="hub-container">
+      <div class="hub-grid" id="hub-cards-grid">
+        <!-- Rendered dynamically from apps.js -->
+      </div>
+      <footer class="hub-footer">
+        <div class="hub-footer-content">
+          <img src="assets/logo_cat.gif" class="hub-footer-cat" alt="Get Real Cat">
+          <span>GET REAL · Powered by Elgatitolover GIFs · ChromeOS Ready</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW 1: JUJUTSU KAISEN MANGA READER
+       ======================================================== -->
+  <div class="app-view" id="view-reader">
+    <header class="reader-header">
+      <div class="reader-header-left">
+        <button class="back-to-hub-btn" onclick="switchMainView('hub')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Hub
+        </button>
+        <img src="assets/logo_avatar.gif" class="header-cat-badge" alt="Cat Logo">
+        <span class="reader-brand-title">JJK READER</span>
+
+        <!-- Reader Tabs locked inside left container -->
+        <div class="reader-tab-nav">
+          <button class="reader-tab-btn active" id="rtab-reader" onclick="switchReaderTab('reader')">📖 Reader</button>
+          <button class="reader-tab-btn" id="rtab-bookmarks" onclick="switchReaderTab('bookmarks')">🔖 Bookmarks <span id="bm-count-badge"></span></button>
+          <button class="reader-tab-btn" id="rtab-downloads" onclick="switchReaderTab('downloads')">⬇️ Downloader</button>
+        </div>
+      </div>
+
+      <div class="reader-header-right">
+        <!-- Reader Top Bar Controls -->
+        <div id="reader-top-controls" style="display:flex;align-items:center;gap:6px;">
+          <button class="btn" id="btn-prev-ch">◀ Prev</button>
+          <select id="header-ch-select" class="btn" style="max-width:200px;"></select>
+          <button class="btn btn-accent" id="btn-next-ch">Next ▶</button>
+          <div class="separator"></div>
+          <button class="btn" id="btn-bookmark" title="Bookmark current page (Ctrl+B)">🔖 Bookmark</button>
+          <button class="btn" id="btn-download-ch" style="border-color:var(--accent);" title="Download chapter">⬇ Download Ch.</button>
+          <div class="separator"></div>
+          <button class="btn" id="btn-mode-toggle">📖 Single</button>
+        </div>
+
+        <!-- Zoom & Fullscreen -->
+        <div id="reader-zoom-controls" style="display:flex;align-items:center;gap:4px;">
+          <button class="btn btn-pill" id="btn-zoom-fit">Fit</button>
+          <button class="btn btn-pill" id="btn-zoom-125">125%</button>
+          <button class="btn btn-pill" id="btn-zoom-150">150%</button>
+          <button class="btn" id="btn-zoom-out" style="width:26px;padding:3px;">−</button>
+          <span id="zoom-text" style="font-size:11px;color:var(--text-muted);min-width:34px;text-align:center;">100%</span>
+          <button class="btn" id="btn-zoom-in" style="width:26px;padding:3px;">+</button>
+          <button class="btn" id="btn-fullscreen" style="width:30px;padding:3px;">⛶</button>
+        </div>
+
+        <!-- Account & Theme Mode -->
+        <div class="reader-theme-tools" style="display:flex;align-items:center;gap:6px;">
+          <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Cloud Sync">
+            <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
+            <span class="account-username-text">@AnonCat</span>
+          </button>
+          <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
+            <span class="theme-mode-text">☀️ Light Mode</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="reader-main-area">
+      <!-- SUBVIEW 1: READER CANVAS -->
+      <div class="reader-subview active" id="rsub-reader">
+        <aside class="reader-sidebar">
+          <div style="padding:10px 12px;border-bottom:1px solid #242836;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:700;color:#8B94A7;">CHAPTERS</span>
+            <button class="btn btn-pill" id="btn-cycle-sort" style="font-size:10px;">Sort: # Asc</button>
+          </div>
+          <div style="padding:8px 12px;">
+            <input type="text" id="search-input" placeholder="Search chapters..." style="width:100%;background:#0D0E13;border:1px solid #242836;color:#FFF;padding:6px 10px;border-radius:6px;" />
+          </div>
+          <div class="chapter-list" id="chapter-list" style="flex:1;overflow-y:auto;padding:6px;"></div>
+        </aside>
+
+        <div class="reader-canvas">
+          <div class="reader-scroll-container" id="reader-scroll-container">
+            <div class="single-page-wrapper" id="single-page-wrapper">
+              <div class="click-zone left" id="click-zone-left" title="Previous Page (A / ←)"></div>
+              <div class="click-zone right" id="click-zone-right" title="Next Page (Space / D / →)"></div>
+              <img id="current-page-img" src="" alt="Manga Page" />
+            </div>
+            <div class="continuous-wrapper" id="continuous-wrapper"></div>
+            <div id="reader-loader" style="display:none;position:absolute;background:rgba(10,11,14,0.9);padding:12px 20px;border-radius:8px;border:1px solid #334155;color:#E2E8F0;font-weight:600;">Loading pages...</div>
+          </div>
+
+          <footer class="reader-footer">
+            <div id="status-ch-title" style="font-weight:700;color:#FFF;">Ready</div>
+            <div id="single-page-controls" style="display:flex;align-items:center;gap:8px;">
+              <button class="btn" id="btn-page-prev">◀ Previous</button>
+              <span class="page-badge" id="page-counter-badge">Page 1 of 1</span>
+              <button class="btn btn-accent" id="btn-page-next">Next ▶</button>
+            </div>
+            <div style="font-size:11px;opacity:0.75;">[Space] or [D/→] Next | [Shift+Space] or [A/←] Prev | [F] Fullscreen</div>
+          </footer>
+        </div>
+      </div>
+
+      <!-- SUBVIEW 2: BOOKMARKS -->
+      <div class="reader-subview" id="rsub-bookmarks" style="flex-direction:column;padding:24px 32px;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div>
+            <h2 style="font-size:18px;font-weight:800;">SAVED BOOKMARKS</h2>
+            <p style="color:#8B94A7;font-size:12px;">Saved points from your reading sessions on this device.</p>
+          </div>
+          <button class="btn" id="btn-clear-bookmarks" style="color:#FF6B6B;">Clear All</button>
+        </div>
+        <div class="bookmarks-grid" id="bookmarks-grid"></div>
+        <div id="bookmarks-empty" style="display:none;text-align:center;padding:40px;color:#8B94A7;">No bookmarks saved. Press <strong>Ctrl + B</strong> while reading to add one!</div>
+      </div>
+
+      <!-- SUBVIEW 3: DOWNLOADER -->
+      <div class="reader-subview" id="rsub-downloads" style="flex-direction:column;padding:24px 32px;overflow-y:auto;gap:18px;">
+        <!-- STANDALONE PORTABLE JJK READER GENERATOR -->
+        <div class="downloads-generator-card">
+          <div class="generator-card-left">
+            <div class="generator-badge">⚡ INSTANT PORTABLE APP</div>
+            <h3 class="generator-title">Generate Standalone JJK Reader (.html)</h3>
+            <p class="generator-desc">
+              Download a 100% self-contained single-file HTML version containing all 272 chapters that works offline or online on any device with a browser (ChromeOS / Chromebook, Windows, Mac, Linux, Android, iOS) without any server or installation needed!
+            </p>
+          </div>
+          <div class="generator-card-right">
+            <button class="btn btn-accent generator-dl-btn" id="btn-generate-standalone-reader" onclick="generatePortableReaderHtml()">
+              📦 Download Standalone Reader (.html)
+            </button>
+            <div class="generator-note">Includes all 272 chapters · Direct CDN images · Zero setup</div>
+          </div>
+        </div>
+
+        <div class="downloads-top-banner">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Download Destination:</div>
+            <div style="margin-top:4px;color:var(--accent);font-weight:700;" id="custom-folder-display">Browser Downloads / Prompts</div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-accent" id="btn-choose-dest-folder">📁 Choose Custom Folder on Computer...</button>
+            <button class="btn" id="btn-open-local-folder">📂 Open Local Manga Folder (Offline)</button>
+            <input type="file" id="local-folder-picker" webkitdirectory directory multiple style="display:none;" />
+          </div>
+        </div>
+
+        <div class="downloads-table-card">
+          <div style="padding:12px 18px;border-bottom:1px solid #242836;display:flex;justify-content:space-between;align-items:center;background:#141722;">
+            <div style="display:flex;gap:8px;align-items:center;">
+              <button class="btn" id="btn-dl-select-all">Select All</button>
+              <button class="btn" id="btn-dl-deselect-all">Deselect All</button>
+              <span style="font-size:12px;color:#8B94A7;margin-left:8px;" id="dl-selected-count">0 chapters selected</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select id="dl-format-select" class="btn" style="background:#1C1F28;">
+                <option value="zip">Download as ZIP (.zip)</option>
+                <option value="files">Save into Custom Folder</option>
+                <option value="offline_cache">Save to Browser Storage</option>
+              </select>
+              <button class="btn btn-accent" id="btn-start-batch-download" style="font-weight:800;">⬇ Start Batch Download</button>
+            </div>
+          </div>
+          <div class="downloads-list" id="downloads-list" style="overflow-y:auto;max-height:450px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW 2: LIVE CHAT ROOM
+       ======================================================== -->
+  <div class="app-view" id="view-chat">
+    <header class="chat-app-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="back-to-hub-btn" onclick="switchMainView('hub')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Hub
+        </button>
+        <img src="assets/logo_avatar.gif" class="header-cat-badge" alt="Cat Logo">
+        <span style="font-weight:800;font-size:14px;color:#38BDF8;">LIVE CHAT ROOM</span>
+      </div>
+
+      <!-- Room Navigation Bar -->
+      <div class="chat-room-nav-bar">
+        <button class="btn btn-pill chat-room-btn" id="chat-btn-browse-rooms" onclick="ChatApp.openBrowseModal()" title="Browse and join rooms">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          Rooms <span class="room-count-badge" id="chat-rooms-badge">2</span>
+        </button>
+
+        <div class="chat-current-room-pill" id="chat-current-room-pill" onclick="ChatApp.openMembersModal()" title="View room members & host controls">
+          <span class="room-hash">#</span>
+          <span id="chat-room-name-text">Lobby</span>
+          <span id="chat-room-lock-icon" style="display:none;" title="Password Protected Room">🔒</span>
+          <span id="chat-room-host-badge" style="display:none;" title="You are the room host!">👑 Host</span>
+        </div>
+
+        <button class="btn btn-accent btn-pill" id="chat-btn-create-room" onclick="ChatApp.openCreateRoomModal()" style="background:#0284C7;border-color:#38BDF8;font-size:11px;padding:4px 10px;">
+          ＋ Create Room
+        </button>
+
+        <button class="btn btn-pill" id="chat-btn-room-members" onclick="ChatApp.openMembersModal()" title="Active room members & Host kick/ban controls">
+          👥 <span id="chat-members-badge">1</span>
+        </button>
+      </div>
+
+      <!-- User Badge & Actions -->
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="chat-active-count" style="background:#10B981;color:#064E3B;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:800;">● Online</span>
+        <button class="btn btn-pill account-pill-btn" id="chat-change-user-btn" onclick="AccountManager.openModal()" style="border-color:var(--accent);color:var(--accent);" title="Account & Profile">
+          <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
+          <span id="chat-current-user-badge">@Username</span> ✏️
+        </button>
+        <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
+          <span class="theme-mode-text">☀️ Light Mode</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="chat-container">
+      <!-- Room Topic Banner -->
+      <div class="chat-room-banner" id="chat-room-banner">
+        <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
+          <span style="font-weight:800;color:var(--accent);white-space:nowrap;" id="chat-banner-room-title">#Lobby</span>
+          <span style="color:var(--text-muted);">·</span>
+          <span style="color:var(--text-muted);font-size:12px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;" id="chat-banner-room-desc">Main public chat lobby for everyone</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;" id="chat-banner-room-host">Host: System</div>
+      </div>
+      <div class="chat-messages-container" id="chat-messages-container"></div>
+
+      <div class="chat-input-bar">
+        <input type="text" id="chat-input-box" class="chat-input-box" placeholder="Type a message (filtered for school safety)... [Enter to send]" />
+        <button class="btn btn-accent" id="chat-send-btn" style="padding:0 20px;">Send ↵</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW 3: 4CHAN-STYLE FORUM (THE BOARD)
+       ======================================================== -->
+  <div class="app-view" id="view-forum">
+    <header class="forum-app-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="back-to-hub-btn" onclick="switchMainView('hub')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Hub
+        </button>
+        <img src="assets/logo_avatar.gif" class="header-cat-badge" alt="Cat Logo">
+        <div style="font-weight:800;font-size:15px;color:var(--accent);">THE BOARD · FORUM</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="btn btn-accent" id="btn-toggle-post-box">＋ New Thread</button>
+        <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
+          <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
+          <span class="account-username-text">@AnonCat</span>
+        </button>
+        <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
+          <span class="theme-mode-text">☀️ Light Mode</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="forum-content-area">
+      <div class="forum-banner-title" id="forum-current-board-title">/all/ - All Boards</div>
+
+      <div class="board-nav">
+        [ <a href="#" class="board-nav-link active" data-board="all">all</a> /
+          <a href="#" class="board-nav-link" data-board="gen">gen</a> /
+          <a href="#" class="board-nav-link" data-board="manga">manga</a> /
+          <a href="#" class="board-nav-link" data-board="school">school</a> ]
+      </div>
+
+      <!-- Post Form (Collapsible) -->
+      <div class="forum-post-box" id="forum-post-box" style="display:none;">
+        <div style="font-weight:bold;font-size:13px;color:var(--accent);margin-bottom:8px;">Create New Thread</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <input type="text" id="post-name-input" placeholder="Name / Tripcode (optional)" style="padding:6px;font-size:12px;" />
+          <input type="text" id="post-subject-input" placeholder="Subject (Title)" style="padding:6px;font-size:12px;" />
+          <textarea id="post-comment-input" placeholder="Comment (lines starting with > will be greentext)" rows="4" style="padding:6px;font-size:12px;"></textarea>
+          <input type="text" id="post-image-input" placeholder="Image URL (optional)" style="padding:6px;font-size:12px;" />
+          <button class="btn btn-accent" id="forum-submit-thread-btn" style="align-self:flex-end;">Submit Post</button>
+        </div>
+      </div>
+
+      <!-- Catalog View -->
+      <div id="forum-catalog-view">
+        <div id="forum-threads-list"></div>
+      </div>
+
+      <!-- Thread Detail View -->
+      <div id="forum-thread-view" style="display:none;">
+        <div style="margin-bottom:12px;">
+          <button class="btn" id="forum-back-catalog-btn">[ ← Return to Catalog ]</button>
+        </div>
+        <div id="forum-thread-detail"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       VIEW 4: QUICK SCRATCHPAD
+       ======================================================== -->
+  <div class="app-view" id="view-notes">
+    <header class="notes-app-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="back-to-hub-btn" onclick="switchMainView('hub')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Hub
+        </button>
+        <img src="assets/logo_avatar.gif" class="header-cat-badge" alt="Cat Logo">
+        <span style="font-weight:800;font-size:15px;color:var(--accent);">QUICK SCRATCHPAD</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="btn" onclick="AccountManager.saveScratchpad(''); document.getElementById('scratchpad-text').value='';">Clear</button>
+        <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
+          <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
+          <span class="account-username-text">@AnonCat</span>
+        </button>
+        <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
+          <span class="theme-mode-text">☀️ Light Mode</span>
+        </button>
+      </div>
+    </header>
+    <div style="flex:1;padding:24px;max-width:800px;margin:0 auto;width:100%;display:flex;flex-direction:column;">
+      <textarea id="scratchpad-text" style="flex:1;width:100%;border-radius:12px;padding:16px;font-family:monospace;font-size:14px;resize:none;outline:none;" placeholder="Jot down quick homework notes, calculations, or links... Auto-saved to this browser."></textarea>
+    </div>
+  </div>
+
+  <!-- MODAL: DOWNLOAD CURRENT CHAPTER -->
+  <div class="modal-backdrop" id="download-modal">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-weight:800;font-size:16px;" id="modal-dl-title">Download Chapter</div>
+        <button style="background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;" onclick="closeDownloadModal()">✕</button>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:6px;">Select your download destination:</p>
+      
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+        <div class="modal-option-btn" onclick="executeCurrentChapterDownload('zip')">
+          <div style="font-weight:700;font-size:13px;">📦 Download as ZIP Archive (.zip)</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Single zip file containing all pages. Works on all browsers and mobile devices.</div>
+        </div>
+
+        <div class="modal-option-btn" onclick="executeCurrentChapterDownload('folder')">
+          <div style="font-weight:700;font-size:13px;">📁 Save Directly to Folder on Computer</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Picks a destination folder on your machine and writes pages directly into it.</div>
+        </div>
+
+        <div class="modal-option-btn" onclick="executeCurrentChapterDownload('cache')">
+          <div style="font-weight:700;font-size:13px;">💾 Save to Browser Offline Storage</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Caches in IndexedDB so you can read offline anytime without downloading files.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ========================================================
+       CHAT MODAL 1: BROWSE ROOMS
+       ======================================================== -->
+  <div class="modal-backdrop" id="chat-modal-browse" style="display:none;">
+    <div class="modal-card chat-modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-size:22px;">💬</div>
+          <div>
+            <div style="font-weight:800;font-size:17px;color:#FFF;">Chat Rooms</div>
+            <div style="font-size:12px;color:#94A3B8;">Browse public rooms or join private rooms with password</div>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="ChatApp.closeModals()">✕</button>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <input type="text" id="chat-room-search-input" placeholder="Search rooms..." style="flex:1;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;" />
+        <button class="btn btn-accent" onclick="ChatApp.openCreateRoomModal()" style="background:#0284C7;border-color:#38BDF8;white-space:nowrap;font-weight:700;">＋ Create Room</button>
+      </div>
+
+      <div class="chat-rooms-list" id="chat-rooms-list" style="max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;">
+        <!-- Rendered by ChatApp.renderRoomsList() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       CHAT MODAL 2: CREATE ROOM
+       ======================================================== -->
+  <div class="modal-backdrop" id="chat-modal-create" style="display:none;">
+    <div class="modal-card chat-modal-card" style="max-width:440px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-weight:800;font-size:17px;color:#FFF;">✨ Create a Chat Room</div>
+        <button class="modal-close-btn" onclick="ChatApp.closeModals()">✕</button>
+      </div>
+
+      <form id="chat-create-room-form" onsubmit="event.preventDefault(); ChatApp.submitCreateRoom();">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:4px;text-transform:uppercase;">Room Name *</label>
+            <input type="text" id="new-room-name-input" required maxlength="30" placeholder="e.g. Anime Club, Chill Lounge, Homework" style="width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;" />
+          </div>
+
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:4px;text-transform:uppercase;">Topic / Description (Optional)</label>
+            <input type="text" id="new-room-desc-input" maxlength="70" placeholder="What is this room about?" style="width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;" />
+          </div>
+
+          <div style="background:#0B132B;border:1px solid #1E293B;padding:12px;border-radius:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <label for="new-room-is-protected" style="font-size:13px;font-weight:700;color:#E2E8F0;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                <span>🔒</span> Password Protect Room
+              </label>
+              <input type="checkbox" id="new-room-is-protected" style="cursor:pointer;width:16px;height:16px;" onchange="ChatApp.togglePasswordFields()" />
+            </div>
+            <div style="font-size:11px;color:#64748B;">Only people with the password can enter. As the creator, you can kick or ban users.</div>
+
+            <div id="new-room-password-container" style="display:none;margin-top:10px;">
+              <input type="password" id="new-room-password-input" placeholder="Set room password..." style="width:100%;background:#0F172A;border:1px solid #38BDF8;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;" />
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+            <button type="button" class="btn" onclick="ChatApp.closeModals()">Cancel</button>
+            <button type="submit" class="btn btn-accent" style="background:#0284C7;border-color:#38BDF8;font-weight:800;">Create & Enter 🚀</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       CHAT MODAL 3: PASSWORD PROMPT
+       ======================================================== -->
+  <div class="modal-backdrop" id="chat-modal-password" style="display:none;">
+    <div class="modal-card chat-modal-card" style="max-width:380px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-weight:800;font-size:16px;color:#FFF;display:flex;align-items:center;gap:6px;">
+          <span>🔒</span> Private Room
+        </div>
+        <button class="modal-close-btn" onclick="ChatApp.closeModals()">✕</button>
+      </div>
+      <p style="font-size:13px;color:#94A3B8;margin-bottom:12px;" id="chat-pwd-modal-text">This room requires a password to enter:</p>
+      
+      <form id="chat-password-form" onsubmit="event.preventDefault(); ChatApp.submitPasswordAttempt();">
+        <input type="password" id="chat-join-password-input" required placeholder="Enter password..." style="width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:9px 12px;border-radius:8px;font-size:13px;margin-bottom:8px;" />
+        <div id="chat-password-error" style="display:none;color:#EF4444;font-size:12px;margin-bottom:10px;">Incorrect password. Please try again.</div>
+        
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" class="btn" onclick="ChatApp.closeModals()">Cancel</button>
+          <button type="submit" class="btn btn-accent" style="background:#0284C7;border-color:#38BDF8;font-weight:800;">Unlock & Join 🔓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       CHAT MODAL 4: MEMBERS & HOST CONTROLS
+       ======================================================== -->
+  <div class="modal-backdrop" id="chat-modal-members" style="display:none;">
+    <div class="modal-card chat-modal-card" style="max-width:440px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+          <div style="font-weight:800;font-size:16px;color:#FFF;display:flex;align-items:center;gap:6px;">
+            <span>👥</span> <span id="chat-members-modal-title">#Lobby Members</span>
+          </div>
+          <div style="font-size:11px;color:#94A3B8;" id="chat-members-modal-subtitle">Active participants in this room</div>
+        </div>
+        <button class="modal-close-btn" onclick="ChatApp.closeModals()">✕</button>
+      </div>
+
+      <div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:8px;">Active Now</div>
+      <div id="chat-members-list-active" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
+        <!-- Rendered by ChatApp.renderMembersModal() -->
+      </div>
+
+      <!-- Host Only: Banned Users Section -->
+      <div id="chat-host-banned-section" style="display:none;border-top:1px solid #1E293B;padding-top:12px;">
+        <div style="font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;margin-bottom:8px;">Banned From This Room</div>
+        <div id="chat-members-list-banned" style="max-height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       GLOBAL MODAL: ACCOUNT & DATA SYNC
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-account" style="display:none;">
+    <div class="modal-card account-modal-card">
+      <div class="account-modal-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <img src="assets/logo_avatar.gif" class="account-avatar-mini" id="modal-acc-avatar-header" style="width:34px;height:34px;" alt="Avatar">
+          <div>
+            <div style="font-weight:900;font-size:17px;color:var(--text);" id="modal-acc-title">Account & Profile</div>
+            <div style="font-size:12px;color:var(--text-muted);">Sync bookmarks, notes, chat & forum</div>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="AccountManager.closeModal()">✕</button>
+      </div>
+
+      <!-- Modal Tabs Nav -->
+      <div class="acc-modal-nav">
+        <button class="acc-tab-btn active" id="acc-tab-btn-profile" onclick="AccountManager.switchModalTab('profile')">👤 Profile</button>
+        <button class="acc-tab-btn" id="acc-tab-btn-sync" onclick="AccountManager.switchModalTab('sync')">🔄 Cloud Sync</button>
+        <button class="acc-tab-btn" id="acc-tab-btn-switch" onclick="AccountManager.switchModalTab('switch')">👥 Accounts</button>
+      </div>
+
+      <!-- TAB 1: PROFILE EDIT -->
+      <div class="acc-tab-content" id="acc-tab-pane-profile">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <label class="acc-form-label">Username (Handle)</label>
+            <input type="text" id="acc-edit-username" class="acc-input" placeholder="e.g. SatoruGojo" maxlength="20" />
+          </div>
+
+          <div>
+            <label class="acc-form-label">Display Nickname</label>
+            <input type="text" id="acc-edit-displayname" class="acc-input" placeholder="e.g. Gojo Satoru" maxlength="30" />
+          </div>
+
+          <div>
+            <label class="acc-form-label">Choose Avatar Sticker</label>
+            <div class="avatar-picker-grid" id="acc-avatar-picker-grid">
+              <!-- Rendered dynamically by AccountManager -->
+            </div>
+          </div>
+
+          <div>
+            <label class="acc-form-label">Status / Bio (Optional)</label>
+            <input type="text" id="acc-edit-bio" class="acc-input" placeholder="Reading JJK, homework later..." maxlength="120" />
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
+            <button class="btn" onclick="AccountManager.closeModal()">Cancel</button>
+            <button class="btn btn-accent" onclick="AccountManager.saveProfileFromForm()" style="font-weight:800;padding:8px 20px;">Save Profile ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: BACKUP & PORTABLE SYNC -->
+      <div class="acc-tab-content" id="acc-tab-pane-sync" style="display:none;">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="sync-info-box">
+            <div style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px;">All-in-One Data Sync</div>
+            <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">
+              Your bookmarks, reading progress, scratchpad notes, and chat handle are synchronized to your active profile.
+            </div>
+            <div class="sync-stats-grid" style="margin-top:10px;">
+              <div class="sync-stat-pill">📖 Bookmarks: <strong id="sync-stat-bookmarks">0</strong></div>
+              <div class="sync-stat-pill">🔖 Last Read: <strong id="sync-stat-lastread">None</strong></div>
+              <div class="sync-stat-pill">📝 Scratchpad: <strong id="sync-stat-notes">Empty</strong></div>
+            </div>
+          </div>
+
+          <!-- Transfer Options -->
+          <div style="border-top:1px solid var(--border);padding-top:12px;">
+            <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:8px;">Transfer to School Chromebook or Another PC</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-pill btn-accent" onclick="AccountManager.downloadAccountBackup()">💾 Export Account (.json)</button>
+              <button class="btn btn-pill" onclick="AccountManager.copySyncCodeToClipboard()">📋 Copy 1-Click Sync Code</button>
+            </div>
+          </div>
+
+          <div style="border-top:1px solid var(--border);padding-top:12px;">
+            <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:8px;">Import on This Device</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="file" id="acc-import-file-input" accept=".json" style="display:none;" onchange="AccountManager.handleImportFile(this)" />
+                <button class="btn btn-pill" onclick="document.getElementById('acc-import-file-input').click()">📂 Upload .json Backup</button>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <input type="text" id="sync-token-input" class="acc-input" placeholder="Paste 1-Click Sync Code here..." style="font-size:12px;padding:6px 10px;" />
+                <button class="btn btn-accent" onclick="AccountManager.handleImportToken()" style="white-space:nowrap;font-size:12px;padding:6px 14px;">Import</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: MULTIPLE ACCOUNTS -->
+      <div class="acc-tab-content" id="acc-tab-pane-switch" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="font-size:12px;color:var(--text-muted);">Switch accounts or create a secondary profile:</div>
+          <button class="btn btn-pill btn-accent" onclick="AccountManager.promptCreateNewAccount()" style="font-size:12px;padding:5px 12px;">＋ New Account</button>
+        </div>
+        <div id="acc-list-container" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;">
+          <!-- Rendered dynamically by AccountManager -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="jszip.min.js"></script>
+  <script src="chapters.js"></script>
+  <script src="profanity.js"></script>
+  <script src="apps.js"></script>
+  <script src="chat.js"></script>
+  <script src="forum.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
