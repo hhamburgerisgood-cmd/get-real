@@ -112,17 +112,7 @@ function renderHubCards() {
         <div class="card-subtitle">${app.subtitle}</div>
       </div>
     </div>
-  `).join('') + `
-    <div class="hub-card card-add" onclick="promptAddNewApp()">
-      <div style="font-size:28px;margin-bottom:6px;">＋</div>
-      <div style="font-weight:700;font-size:16px;">Add More Stuff</div>
-      <div style="font-size:12px;margin-top:4px;">Easy modular slots in apps.js</div>
-    </div>
-  `;
-}
-
-function promptAddNewApp() {
-  alert("✨ Adding a new card to your hub is super easy!\n\nJust open 'apps.js' and add a new app definition to the HUB_APPS array. It will instantly show up on your homepage!");
+  `).join('');
 }
 
 function initNotes() {

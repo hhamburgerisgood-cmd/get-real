@@ -324,19 +324,6 @@ body {
 .card-notes .card-icon { color: #F43F5E; }
 .card-notes:hover { border-color: #F43F5E; }
 
-.card-add {
-  background: var(--surface-muted);
-  border: 2px dashed var(--border);
-  color: var(--text-muted);
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-.card-add:hover {
-  border-color: var(--accent);
-  color: var(--text);
-}
-
 /* ----------------- APP VIEW CONTAINER & HEADER ----------------- */
 .app-view {
   display: none;
