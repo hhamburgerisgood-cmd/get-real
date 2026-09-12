@@ -20,7 +20,7 @@
         <div class="hub-theme-tools" style="display:inline-flex;align-items:center;gap:8px;">
           <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Cloud Sync">
             <img src="assets/logo_avatar.gif" class="account-avatar-mini" id="hub-account-avatar" alt="Avatar">
-            <span class="account-username-text" id="hub-account-name">@AnonCat</span>
+            <span class="account-username-text" id="hub-account-name">@AnonCat</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
           </button>
           <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
             <span class="theme-mode-text">☀️ Light Mode</span>
@@ -99,7 +99,7 @@
         <div class="reader-theme-tools" style="display:flex;align-items:center;gap:6px;">
           <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Cloud Sync">
             <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-            <span class="account-username-text">@AnonCat</span>
+            <span class="account-username-text">@AnonCat</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
           </button>
           <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
             <span class="theme-mode-text">☀️ Light Mode</span>
@@ -297,7 +297,7 @@
         <button class="btn btn-accent" id="btn-toggle-post-box">＋ New Thread</button>
         <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
           <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-          <span class="account-username-text">@AnonCat</span>
+          <span class="account-username-text">@AnonCat</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
         </button>
         <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
           <span class="theme-mode-text">☀️ Light Mode</span>
@@ -359,7 +359,7 @@
         <button class="btn" onclick="AccountManager.saveScratchpad(''); document.getElementById('scratchpad-text').value='';">Clear</button>
         <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
           <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-          <span class="account-username-text">@AnonCat</span>
+          <span class="account-username-text">@AnonCat</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
         </button>
         <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
           <span class="theme-mode-text">☀️ Light Mode</span>
@@ -526,65 +526,130 @@
   <!-- ========================================================
        GLOBAL MODAL: ACCOUNT & DATA SYNC
        ======================================================== -->
+    <!-- ========================================================
+       GLOBAL MODAL: ACCOUNT & DATA SYNC (PASSWORD PROTECTED)
+       ======================================================== -->
   <div class="modal-backdrop" id="modal-account" style="display:none;">
     <div class="modal-card account-modal-card">
       <div class="account-modal-header">
         <div style="display:flex;align-items:center;gap:10px;">
           <img src="assets/logo_avatar.gif" class="account-avatar-mini" id="modal-acc-avatar-header" style="width:34px;height:34px;" alt="Avatar">
           <div>
-            <div style="font-weight:900;font-size:17px;color:var(--text);" id="modal-acc-title">Account & Profile</div>
-            <div style="font-size:12px;color:var(--text-muted);">Sync bookmarks, notes, chat & forum</div>
+            <div style="font-weight:900;font-size:17px;color:var(--text);" id="modal-acc-title">Account & Security</div>
+            <div style="font-size:12px;color:var(--text-muted);">Unique usernames, passwords & synced data</div>
           </div>
         </div>
         <button class="modal-close-btn" onclick="AccountManager.closeModal()">✕</button>
       </div>
 
+      <!-- Account Status Banner -->
+      <div id="modal-acc-status-banner"></div>
+
       <!-- Modal Tabs Nav -->
       <div class="acc-modal-nav">
-        <button class="acc-tab-btn active" id="acc-tab-btn-profile" onclick="AccountManager.switchModalTab('profile')">👤 Profile</button>
+        <button class="acc-tab-btn acc-tab-logged-out active" id="acc-tab-btn-login" onclick="AccountManager.switchModalTab('login')">🔑 Log In</button>
+        <button class="acc-tab-btn acc-tab-logged-out" id="acc-tab-btn-signup" onclick="AccountManager.switchModalTab('signup')">✨ Sign Up</button>
+        <button class="acc-tab-btn acc-tab-logged-in" id="acc-tab-btn-profile" onclick="AccountManager.switchModalTab('profile')">👤 My Profile</button>
         <button class="acc-tab-btn" id="acc-tab-btn-sync" onclick="AccountManager.switchModalTab('sync')">🔄 Cloud Sync</button>
         <button class="acc-tab-btn" id="acc-tab-btn-switch" onclick="AccountManager.switchModalTab('switch')">👥 Accounts</button>
       </div>
 
-      <!-- TAB 1: PROFILE EDIT -->
-      <div class="acc-tab-content" id="acc-tab-pane-profile">
-        <div style="display:flex;flex-direction:column;gap:12px;">
+      <!-- TAB: LOG IN -->
+      <div class="acc-tab-content" id="acc-tab-pane-login">
+        <form id="form-acc-login" onsubmit="AccountManager.handleLoginForm(event); return false;" style="display:flex;flex-direction:column;gap:12px;">
+          <div id="acc-login-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid #EF4444;color:#EF4444;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;"></div>
           <div>
-            <label class="acc-form-label">Username (Handle)</label>
-            <input type="text" id="acc-edit-username" class="acc-input" placeholder="e.g. SatoruGojo" maxlength="20" />
+            <label class="acc-form-label">Username</label>
+            <input type="text" id="acc-login-username" class="acc-input" placeholder="e.g. SatoruGojo" required autocomplete="username" />
           </div>
-
           <div>
-            <label class="acc-form-label">Display Nickname</label>
-            <input type="text" id="acc-edit-displayname" class="acc-input" placeholder="e.g. Gojo Satoru" maxlength="30" />
+            <label class="acc-form-label">Password</label>
+            <input type="password" id="acc-login-password" class="acc-input" placeholder="Enter your password" required autocomplete="current-password" />
           </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+            <a href="javascript:void(0)" onclick="AccountManager.switchModalTab('signup')" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:700;">Need an account? Sign Up</a>
+            <button type="submit" class="btn btn-accent" style="font-weight:800;padding:8px 22px;">Log In 🔑</button>
+          </div>
+        </form>
+      </div>
 
+      <!-- TAB: SIGN UP -->
+      <div class="acc-tab-content" id="acc-tab-pane-signup" style="display:none;">
+        <form id="form-acc-signup" onsubmit="AccountManager.handleSignupForm(event); return false;" style="display:flex;flex-direction:column;gap:12px;">
+          <div id="acc-signup-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid #EF4444;color:#EF4444;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;"></div>
+          <div style="font-size:12px;color:var(--text-muted);background:var(--card-bg);padding:8px;border-radius:8px;border:1px solid var(--border);">
+            🔒 <strong>Strict Uniqueness:</strong> Your username is protected with your password. No other user can claim or send messages with your name.
+          </div>
           <div>
-            <label class="acc-form-label">Choose Avatar Sticker</label>
-            <div class="avatar-picker-grid" id="acc-avatar-picker-grid">
-              <!-- Rendered dynamically by AccountManager -->
+            <label class="acc-form-label">Desired Username (Unique)</label>
+            <input type="text" id="acc-signup-username" class="acc-input" placeholder="e.g. SatoruGojo" maxlength="20" required autocomplete="username" />
+          </div>
+          <div>
+            <label class="acc-form-label">Display Nickname (Optional)</label>
+            <input type="text" id="acc-signup-displayname" class="acc-input" placeholder="e.g. The Strongest" maxlength="30" />
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <label class="acc-form-label">Password</label>
+              <input type="password" id="acc-signup-password" class="acc-input" placeholder="Min 4 chars" required autocomplete="new-password" />
+            </div>
+            <div>
+              <label class="acc-form-label">Confirm Password</label>
+              <input type="password" id="acc-signup-password-confirm" class="acc-input" placeholder="Repeat password" required autocomplete="new-password" />
             </div>
           </div>
+          <div>
+            <label class="acc-form-label">Choose Avatar Sticker</label>
+            <div class="avatar-picker-grid" id="acc-signup-avatar-grid"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+            <a href="javascript:void(0)" onclick="AccountManager.switchModalTab('login')" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:700;">Already registered? Log In</a>
+            <button type="submit" class="btn btn-accent" style="font-weight:800;padding:8px 22px;">Create Account & Claim Name ✓</button>
+          </div>
+        </form>
+      </div>
 
+      <!-- TAB: PROFILE EDIT (WHEN LOGGED IN) -->
+      <div class="acc-tab-content" id="acc-tab-pane-profile" style="display:none;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <label class="acc-form-label">Display Nickname</label>
+            <input type="text" id="acc-edit-displayname" class="acc-input" placeholder="e.g. Satoru Gojo" maxlength="30" />
+          </div>
+          <div>
+            <label class="acc-form-label">Choose Avatar Sticker</label>
+            <div class="avatar-picker-grid" id="acc-avatar-picker-grid"></div>
+          </div>
           <div>
             <label class="acc-form-label">Status / Bio (Optional)</label>
             <input type="text" id="acc-edit-bio" class="acc-input" placeholder="Reading JJK, homework later..." maxlength="120" />
           </div>
-
-          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:10px;">
-            <button class="btn" onclick="AccountManager.closeModal()">Cancel</button>
+          <div style="display:flex;justify-content:flex-end;gap:8px;">
             <button class="btn btn-accent" onclick="AccountManager.saveProfileFromForm()" style="font-weight:800;padding:8px 20px;">Save Profile ✓</button>
+          </div>
+
+          <!-- Password change section -->
+          <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:6px;">
+            <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:8px;">Change Account Password</div>
+            <div id="acc-pwd-error" style="display:none;color:#EF4444;font-size:12px;margin-bottom:6px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <input type="password" id="acc-pwd-old" class="acc-input" placeholder="Current password" />
+              <input type="password" id="acc-pwd-new" class="acc-input" placeholder="New password" />
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+              <button class="btn" onclick="AccountManager.handleChangePasswordForm(event)" style="font-size:12px;padding:6px 14px;">Update Password</button>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 2: BACKUP & PORTABLE SYNC -->
+      <!-- TAB: BACKUP & PORTABLE SYNC -->
       <div class="acc-tab-content" id="acc-tab-pane-sync" style="display:none;">
         <div style="display:flex;flex-direction:column;gap:14px;">
           <div class="sync-info-box">
             <div style="font-weight:700;font-size:13px;color:var(--accent);margin-bottom:6px;">All-in-One Data Sync</div>
             <div style="font-size:12px;color:var(--text-muted);line-height:1.5;">
-              Your bookmarks, reading progress, scratchpad notes, and chat handle are synchronized to your active profile.
+              Your bookmarks, reading progress, scratchpad notes, and password credentials are synchronized safely.
             </div>
             <div class="sync-stats-grid" style="margin-top:10px;">
               <div class="sync-stat-pill">📖 Bookmarks: <strong id="sync-stat-bookmarks">0</strong></div>
@@ -603,7 +668,7 @@
           </div>
 
           <div style="border-top:1px solid var(--border);padding-top:12px;">
-            <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:8px;">Import on This Device</div>
+            <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:8px;">Import on This Device (Password Protected)</div>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;gap:8px;align-items:center;">
                 <input type="file" id="acc-import-file-input" accept=".json" style="display:none;" onchange="AccountManager.handleImportFile(this)" />
@@ -618,11 +683,11 @@
         </div>
       </div>
 
-      <!-- TAB 3: MULTIPLE ACCOUNTS -->
+      <!-- TAB: MULTIPLE ACCOUNTS -->
       <div class="acc-tab-content" id="acc-tab-pane-switch" style="display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <div style="font-size:12px;color:var(--text-muted);">Switch accounts or create a secondary profile:</div>
-          <button class="btn btn-pill btn-accent" onclick="AccountManager.promptCreateNewAccount()" style="font-size:12px;padding:5px 12px;">＋ New Account</button>
+          <div style="font-size:12px;color:var(--text-muted);">Switch accounts or register a new profile:</div>
+          <button class="btn btn-pill btn-accent" onclick="AccountManager.switchModalTab('signup')" style="font-size:12px;padding:5px 12px;">＋ Register New</button>
         </div>
         <div id="acc-list-container" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;">
           <!-- Rendered dynamically by AccountManager -->
@@ -631,7 +696,7 @@
     </div>
   </div>
 
-  <!-- SCRIPTS -->
+<!-- SCRIPTS -->
   <script src="jszip.min.js"></script>
   <script src="chapters.js"></script>
   <script src="profanity.js"></script>

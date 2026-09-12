@@ -132,6 +132,16 @@ const ForumApp = (() => {
       return;
     }
 
+    // Anti-impersonation check
+    if (typeof AccountManager !== 'undefined') {
+      const isAuth = AccountManager.isAuthenticated();
+      if (!isAuth && AccountManager.isUsernameRegistered(name)) {
+        alert('🔒 The username "' + name + '" is registered and protected by password.\n\nPlease log in with your password to author posts under this name, or choose a different name.');
+        AccountManager.openModal('login');
+        return;
+      }
+    }
+
     // Check author uniqueness or handle
     if (!ProfanityFilter.isClean(name)) {
       alert('⚠️ Author name contains disallowed words. Please choose a clean name.');
@@ -145,10 +155,12 @@ const ForumApp = (() => {
     const threads = getThreads();
     const newId = (threads.length > 0 ? Math.max(...threads.map(t => t.id)) : 1000) + 1;
 
+    const isVerifiedThread = (typeof AccountManager !== 'undefined') ? AccountManager.isAuthenticated() : false;
     const newThread = {
       id: newId,
       board: currentBoard === 'all' ? 'gen' : currentBoard,
       author: name,
+      verified: isVerifiedThread,
       avatar: (typeof AccountManager !== 'undefined') ? AccountManager.getAvatarKey() : 'logo_avatar',
       subject: cleanSubject,
       comment: cleanComment,
@@ -186,6 +198,16 @@ const ForumApp = (() => {
       return;
     }
 
+    // Anti-impersonation check
+    if (typeof AccountManager !== 'undefined') {
+      const isAuth = AccountManager.isAuthenticated();
+      if (!isAuth && AccountManager.isUsernameRegistered(name)) {
+        alert('🔒 The username "' + name + '" is registered and protected by password.\n\nPlease log in with your password to post replies under this name, or choose a different name.');
+        AccountManager.openModal('login');
+        return;
+      }
+    }
+
     if (!ProfanityFilter.isClean(name)) {
       alert('⚠️ Name contains disallowed words.');
       return;
@@ -199,9 +221,11 @@ const ForumApp = (() => {
     if (!thread.replies) thread.replies = [];
     const replyId = (thread.replies.length > 0 ? Math.max(...thread.replies.map(r => r.id)) : threadId) + 1;
 
+    const isVerifiedReply = (typeof AccountManager !== 'undefined') ? AccountManager.isAuthenticated() : false;
     thread.replies.push({
       id: replyId,
       author: name,
+      verified: isVerifiedReply,
       avatar: (typeof AccountManager !== 'undefined') ? AccountManager.getAvatarKey() : 'logo_avatar',
       comment: cleanComment,
       timestamp: Date.now()
@@ -271,6 +295,7 @@ const ForumApp = (() => {
             <span class="thread-author" style="display:inline-flex;align-items:center;gap:4px;">
               ${avatarSrc ? `<img src="${avatarSrc}" class="account-avatar-mini" style="width:15px;height:15px;" alt="Avatar">` : ''}
               ${escapeHtml(t.author)}
+              ${t.verified ? '<span class="forum-verified-badge" title="Verified Account">✓</span>' : '<span class="guest-badge">Guest</span>'}
             </span>
             <span class="thread-date">${dateStr}</span>
             <span class="thread-id">No.${t.id}</span>
@@ -301,6 +326,7 @@ const ForumApp = (() => {
             <span class="thread-author" style="display:inline-flex;align-items:center;gap:4px;">
               ${rAvatar ? `<img src="${rAvatar}" class="account-avatar-mini" style="width:15px;height:15px;" alt="Avatar">` : ''}
               ${escapeHtml(r.author)}
+              ${r.verified ? '<span class="forum-verified-badge" title="Verified Account">✓</span>' : '<span class="guest-badge">Guest</span>'}
             </span>
             <span class="thread-date">${rDate}</span>
             <span class="thread-id" onclick="ForumApp.quotePost(${r.id}, ${thread.id})">No.${r.id}</span>
@@ -319,6 +345,7 @@ const ForumApp = (() => {
           <span class="thread-author" style="display:inline-flex;align-items:center;gap:4px;">
             ${opAvatar ? `<img src="${opAvatar}" class="account-avatar-mini" style="width:16px;height:16px;" alt="Avatar">` : ''}
             ${escapeHtml(thread.author)}
+            ${thread.verified ? '<span class="forum-verified-badge" title="Verified Account">✓</span>' : '<span class="guest-badge">Guest</span>'}
           </span>
           <span class="thread-date">${opDate}</span>
           <span class="thread-id" onclick="ForumApp.quotePost(${thread.id}, ${thread.id})">No.${thread.id}</span>

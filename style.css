@@ -1502,3 +1502,58 @@ input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:f
   letter-spacing: 0.5px;
 }
 
+/* ========================================================
+   VERIFIED BADGES & ANTI-IMPERSONATION STYLES
+   ======================================================== */
+.account-verified-pill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #10B981;
+  font-weight: 900;
+  font-size: 11px;
+  margin-left: 2px;
+}
+
+.chat-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 900;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-left: 4px;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.forum-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 8px;
+  margin-left: 5px;
+  vertical-align: middle;
+  line-height: 1.2;
+}
+
+.guest-badge {
+  display: inline-block;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 6px;
+  margin-left: 4px;
+}

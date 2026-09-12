@@ -786,10 +786,23 @@ const ChatApp = (() => {
 
     const cleanedText = typeof ProfanityFilter !== 'undefined' ? ProfanityFilter.clean(text) : text;
 
+    // Anti-impersonation check
+    if (typeof AccountManager !== 'undefined') {
+      const isAuth = AccountManager.isAuthenticated();
+      if (!isAuth && AccountManager.isUsernameRegistered(currentUser)) {
+        alert('🔒 The username "@' + currentUser + '" is registered and password-protected.\n\nPlease click your profile pill in the header to log in, or choose a different nickname.');
+        AccountManager.openModal('login');
+        return;
+      }
+    }
+
+    const isVerified = (typeof AccountManager !== 'undefined') ? AccountManager.isAuthenticated() : false;
+
     const msg = {
       id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       channel: currentRoomId,
       user: currentUser,
+      verified: isVerified,
       avatar: (typeof AccountManager !== 'undefined') ? AccountManager.getAvatarKey() : 'logo_avatar',
       text: cleanedText,
       timestamp: Date.now()
@@ -832,7 +845,7 @@ const ChatApp = (() => {
           <div class="msg-header">
             <div style="display:flex;align-items:center;gap:6px;">
               <img src="${avatarSrc}" class="account-avatar-mini" style="width:18px;height:18px;" alt="Avatar">
-              <span class="msg-user">@${escapeHtml(m.user)}</span>
+              <span class="msg-user">@${escapeHtml(m.user)}</span>${m.verified ? '<span class="chat-verified-badge" title="Verified Account">✓</span>' : '<span class="guest-badge">Guest</span>'}
             </div>
             <span class="msg-time">${timeStr}</span>
             ${isHost && !isMe ? `
