@@ -31,7 +31,7 @@ function escapeHtml(str) {
 }
 
 // MANGA LIVE FETCHER & SCRAPER API (ZERO REPOSITORY STORAGE)
-let currentImageServerTier = 0; // 0: Automattic Jetpack CDN, 1: Cloudflare wsrv, 2: Weserv, 3: Direct
+let currentImageServerTier = 0; // 0: Direct from jjkmangaa.com, 1: Cloudflare wsrv, 2: Weserv
 let preferImageProxy = false;
 
 function getMangaImageUrl(rawUrl, tier = currentImageServerTier) {
@@ -39,13 +39,10 @@ function getMangaImageUrl(rawUrl, tier = currentImageServerTier) {
   if (rawUrl.startsWith('blob:') || rawUrl.startsWith('data:')) {
     return rawUrl;
   }
-  const cleanUrl = rawUrl.replace(/^https?:\/\//, '');
 
   if (tier === 0) {
-    // Automattic WordPress Jetpack Global CDN (unblockable, 0 adblock triggers, HTTP 200)
-    const hash = cleanUrl.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    const hostIndex = Math.abs(hash) % 4;
-    return `https://i${hostIndex}.wp.com/${cleanUrl}`;
+    // Direct from origin (no proxy, no CDN)
+    return rawUrl;
   } else if (tier === 1) {
     return `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}`;
   } else if (tier === 2) {
@@ -61,10 +58,9 @@ async function fetchMangaBlob(url) {
     return await res.blob();
   }
   const urlsToTry = [
-    getMangaImageUrl(url, 0),
+    url,
     getMangaImageUrl(url, 1),
-    getMangaImageUrl(url, 2),
-    url
+    getMangaImageUrl(url, 2)
   ];
   for (const u of urlsToTry) {
     try {
