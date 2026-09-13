@@ -241,15 +241,32 @@ const firebaseConfig = {
       }
     },
 
-    // Manga Chapter Cloud Storage
     getMangaChapter: async function(chapterNumber) {
       if (this.isConfigured && this.db) {
         try {
           const doc = await this.db.collection('manga_chapters').doc(String(chapterNumber)).get();
           if (doc.exists) return doc.data();
         } catch (e) {
-          console.warn('Firestore getMangaChapter error:', e);
+          console.warn('Firestore SDK getMangaChapter error, trying REST fallback:', e);
         }
+      }
+      if (this.isConfigured && firebaseConfig.apiKey && firebaseConfig.projectId) {
+        try {
+          const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/manga_chapters/${chapterNumber}?key=${firebaseConfig.apiKey}`;
+          const res = await fetch(url);
+          if (res.ok) {
+            const data = await res.json();
+            const fields = data.fields || {};
+            const pages = (fields.pages?.arrayValue?.values || []).map(v => v.stringValue);
+            return {
+              number: parseInt(fields.number?.integerValue || chapterNumber, 10),
+              title: fields.title?.stringValue || `Chapter ${chapterNumber}`,
+              name: fields.name?.stringValue || '',
+              url: fields.url?.stringValue || '',
+              pages: pages
+            };
+          }
+        } catch (e) {}
       }
       return null;
     },
