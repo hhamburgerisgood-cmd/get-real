@@ -184,17 +184,6 @@ const MangaAPI = {
   }
 };
 
-function openScrapeUrlModal() {
-  const modal = document.getElementById('scrape-url-modal');
-  if (modal) modal.classList.add('active');
-}
-
-function closeScrapeUrlModal() {
-  const modal = document.getElementById('scrape-url-modal');
-  if (modal) modal.classList.remove('active');
-  const statusEl = document.getElementById('scrape-modal-status');
-  if (statusEl) statusEl.style.display = 'none';
-}
 
 // MAIN VIEW SWITCHER (Hub, Reader, Chat, Forum, Notes)
 function switchMainView(viewId) {
@@ -386,38 +375,7 @@ function setupReaderControls() {
   document.getElementById('btn-dl-deselect-all')?.addEventListener('click', () => toggleAllDownloads(false));
   document.getElementById('btn-start-batch-download')?.addEventListener('click', startBatchDownload);
 
-  // Manga image server & live URL scraper controls
-  document.getElementById('select-image-server')?.addEventListener('change', (e) => {
-    currentImageServerTier = parseInt(e.target.value, 10);
-    renderPages();
-  });
-  document.getElementById('btn-open-scrape-modal')?.addEventListener('click', openScrapeUrlModal);
-  document.getElementById('btn-close-scrape-modal')?.addEventListener('click', closeScrapeUrlModal);
-  document.getElementById('btn-cancel-scrape')?.addEventListener('click', closeScrapeUrlModal);
-  document.getElementById('btn-do-scrape')?.addEventListener('click', async () => {
-    const input = document.getElementById('scrape-url-input');
-    const statusEl = document.getElementById('scrape-modal-status');
-    const url = input?.value.trim();
-    if (!url) return;
-    if (statusEl) {
-      statusEl.style.display = 'block';
-      statusEl.textContent = 'Fetching and extracting pages live via API...';
-    }
-    try {
-      const chapter = await MangaAPI.scrapeChapter(url);
-      if (statusEl) {
-        statusEl.textContent = `Success! Fetched ${chapter.pages.length} pages. Opening...`;
-      }
-      setTimeout(() => {
-        closeScrapeUrlModal();
-        selectChapter(chapter, 0);
-      }, 500);
-    } catch(err) {
-      if (statusEl) {
-        statusEl.textContent = 'Failed to fetch: ' + (err.message || 'Check URL');
-      }
-    }
-  });
+
 
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('wheel', handleWheel, { passive: false });
@@ -528,6 +486,9 @@ function populateHeaderDropdown() {
 }
 
 async function selectChapter(chapter, startPage = 0) {
+  if (typeof switchReaderTab === 'function') {
+    switchReaderTab('reader');
+  }
   currentChapter = chapter;
   currentPageIndex = startPage;
 
