@@ -4,14 +4,13 @@
  * Supports Firebase v10 Auth and Cloud Firestore with transparent offline/localStorage fallback.
  */
 
-// Placeholder configuration - replace with your Firebase project credentials from console.firebase.google.com
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "get-real-app.firebaseapp.com",
-  projectId: "get-real-app",
-  storageBucket: "get-real-app.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890"
+  apiKey: "AIzaSyB0iTRR8EVcXfykeFZ1E-D4GcWRHF95Q34",
+  authDomain: "get-real-515ba.firebaseapp.com",
+  projectId: "get-real-515ba",
+  storageBucket: "get-real-515ba.firebasestorage.app",
+  messagingSenderId: "313486045427",
+  appId: "1:313486045427:web:8be419842a8be0d0b4c786"
 };
 
 (function() {
