@@ -6,6 +6,17 @@
   <meta name="referrer" content="no-referrer">
   <title>Get Real - Manga, Chat, Board & Stuff</title>
   <link rel="stylesheet" href="style.css">
+    <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('get_real_mode_v2');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (saved === 'dark' || (!saved && prefersDark)) {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch(e) {}
+    })();
+  </script>
   <script src="theme.js"></script>
   <script src="account.js"></script>
 </head>
@@ -20,7 +31,7 @@
         <div class="hub-theme-tools" style="display:inline-flex;align-items:center;gap:8px;">
           <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Cloud Sync">
             <img src="assets/logo_avatar.gif" class="account-avatar-mini" id="hub-account-avatar" alt="Avatar">
-            <span class="account-username-text" id="hub-account-name">@AnonCat</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
+            <span class="account-username-text" id="hub-account-name">Log In</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
           </button>
           <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
             <span class="theme-mode-text">☀️ Light Mode</span>
@@ -99,7 +110,7 @@
         <div class="reader-theme-tools" style="display:flex;align-items:center;gap:6px;">
           <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Cloud Sync">
             <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-            <span class="account-username-text">@AnonCat</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
+            <span class="account-username-text">Log In</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
           </button>
           <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
             <span class="theme-mode-text">☀️ Light Mode</span>
@@ -297,7 +308,7 @@
         <button class="btn btn-accent" id="btn-toggle-post-box">＋ New Thread</button>
         <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
           <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-          <span class="account-username-text">@AnonCat</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
+          <span class="account-username-text">Log In</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
         </button>
         <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
           <span class="theme-mode-text">☀️ Light Mode</span>
@@ -359,7 +370,7 @@
         <button class="btn" onclick="AccountManager.saveScratchpad(''); document.getElementById('scratchpad-text').value='';">Clear</button>
         <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
           <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-          <span class="account-username-text">@AnonCat</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
+          <span class="account-username-text">Log In</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
         </button>
         <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
           <span class="theme-mode-text">☀️ Light Mode</span>

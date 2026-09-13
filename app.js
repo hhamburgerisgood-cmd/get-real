@@ -54,6 +54,8 @@ function switchReaderTab(tabId) {
 
 // INITIALIZATION
 window.addEventListener('DOMContentLoaded', () => {
+  if (typeof ThemeManager !== 'undefined') ThemeManager.init();
+  if (typeof AccountManager !== 'undefined') AccountManager.updateUI();
   if (allChapters.length === 0) {
     if (typeof CHAPTER_DATA !== 'undefined') allChapters = [...CHAPTER_DATA];
     else if (typeof window !== 'undefined' && window.CHAPTER_DATA) allChapters = [...window.CHAPTER_DATA];

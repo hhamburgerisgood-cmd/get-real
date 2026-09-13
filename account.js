@@ -78,6 +78,9 @@ const AccountManager = (() => {
       accounts = [];
     }
 
+    // Filter out any legacy dummy unauthenticated AnonCat accounts
+    accounts = accounts.filter(a => a.username.toLowerCase() !== 'anoncat' || (a.passwordHash && a.passwordHash.length > 0));
+
     // 2. Migration from v1 if v2 is empty
     if (!Array.isArray(accounts) || accounts.length === 0) {
       try {
@@ -122,6 +125,17 @@ const AccountManager = (() => {
     } catch (e) {}
 
     updateUI();
+
+    // Attach to DOMContentLoaded so headers reflect real status as soon as elements exist
+    if (typeof document !== 'undefined') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          updateUI();
+        });
+      } else {
+        updateUI();
+      }
+    }
   }
 
   function persist() {
