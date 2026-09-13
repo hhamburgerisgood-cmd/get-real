@@ -13,6 +13,23 @@ let selectedFolderHandle = null;
 const STORAGE_BOOKMARKS = 'jk_bookmarks_v1';
 const STORAGE_NOTES = 'hub_scratchpad_v1';
 
+// UTILITY: DEBOUNCE
+function debounce(fn, delay = 200) {
+  let timer = null;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// UTILITY: ESCAPE HTML
+function escapeHtml(str) {
+  if (str == null) return '';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
 // MAIN VIEW SWITCHER (Hub, Reader, Chat, Forum, Notes)
 function switchMainView(viewId) {
   document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
@@ -63,19 +80,23 @@ window.addEventListener('DOMContentLoaded', () => {
   renderHubCards();
   renderChapterCatalog();
   populateHeaderDropdown();
-  setupEventListeners();
-  updateBookmarkCountBadge();
+  setupReaderControls();
+  updateBookmarksBadge();
 
   // Load notes connected to AccountManager
   const noteArea = document.getElementById('scratchpad-text');
   if (noteArea) {
     noteArea.value = (typeof AccountManager !== 'undefined') ? AccountManager.getScratchpad() : (localStorage.getItem(STORAGE_NOTES) || '');
+    const debouncedDiskSave = debounce((val) => {
+      try {
+        localStorage.setItem(STORAGE_NOTES, val);
+      } catch (e) {}
+    }, 300);
     noteArea.addEventListener('input', (e) => {
       if (typeof AccountManager !== 'undefined') {
         AccountManager.saveScratchpad(e.target.value);
-      } else {
-        localStorage.setItem(STORAGE_NOTES, e.target.value);
       }
+      debouncedDiskSave(e.target.value);
     });
   }
 
@@ -119,16 +140,19 @@ function renderHubCards() {
 
 function initNotes() {
   const noteArea = document.getElementById('scratchpad-text');
-  if (noteArea) {
-    noteArea.value = (typeof AccountManager !== 'undefined') ? AccountManager.getScratchpad() : (localStorage.getItem(STORAGE_NOTES) || '');
-  }
+  if (!noteArea) return;
+  if (document.activeElement === noteArea) return;
+  noteArea.value = (typeof AccountManager !== 'undefined') ? AccountManager.getScratchpad() : (localStorage.getItem(STORAGE_NOTES) || '');
 }
 
 // READER CONTROLS
 function setupReaderControls() {
-  document.getElementById('search-input')?.addEventListener('input', (e) => {
-    renderChapterCatalog(e.target.value);
-  });
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce((e) => {
+      renderChapterCatalog(e.target.value);
+    }, 180));
+  }
 
   document.getElementById('btn-cycle-sort')?.addEventListener('click', cycleSortMode);
 
@@ -158,6 +182,7 @@ function setupReaderControls() {
   document.getElementById('btn-bookmark')?.addEventListener('click', addCurrentBookmark);
   document.getElementById('btn-clear-bookmarks')?.addEventListener('click', clearAllBookmarks);
   document.getElementById('btn-download-ch')?.addEventListener('click', openDownloadModal);
+  document.getElementById('btn-generate-standalone-reader')?.addEventListener('click', generatePortableReaderHtml);
 
   document.getElementById('btn-choose-dest-folder')?.addEventListener('click', chooseDestinationFolder);
   document.getElementById('btn-open-local-folder')?.addEventListener('click', () => {
@@ -171,6 +196,16 @@ function setupReaderControls() {
 
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('wheel', handleWheel, { passive: false });
+  window.addEventListener('resize', debounce(handleWindowResize, 150));
+}
+
+function handleWindowResize() {
+  if (!isContinuous && currentPages && currentPages.length > 0) {
+    const img = document.getElementById('current-page-img');
+    if (img && zoomFactor === 1.0) {
+      img.style.transform = `scale(${zoomFactor})`;
+    }
+  }
 }
 
 // CHAPTER CATALOG & NAVIGATION
@@ -207,19 +242,38 @@ function renderChapterCatalog(filter = '') {
   const q = filter.trim().toLowerCase();
   const chapters = getSortedChapters().filter(c => {
     if (!q) return true;
-    return c.title.toLowerCase().includes(q) || c.number.toString().includes(q);
+    const titleStr = (c && c.title) ? c.title.toLowerCase() : '';
+    const numStr = (c && c.number != null) ? c.number.toString() : '';
+    return titleStr.includes(q) || numStr.includes(q);
   });
 
+  const fragment = document.createDocumentFragment();
   chapters.forEach(ch => {
     const el = document.createElement('div');
-    el.className = 'chapter-item' + (currentChapter && currentChapter.number === ch.number ? ' selected' : '');
+    el.className = 'chapter-item' + (currentChapter && currentChapter.number === ch.number ? ' active selected' : '');
+    el.setAttribute('data-chapter-number', ch.number);
     el.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;margin-bottom:2px;';
+    const safeTitle = escapeHtml(ch.title || '');
     el.innerHTML = `
-      <span style="background:#202432;color:#DD53B4;padding:3px 6px;border-radius:4px;font-size:11px;font-weight:800;min-width:44px;text-align:center;">${ch.isLocal ? 'OFFLINE' : '#' + ch.number}</span>
-      <span style="font-size:12px;font-weight:600;color:#FFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${ch.title}">${ch.title}</span>
+      <span style="background:var(--surface-muted);color:var(--accent);padding:3px 6px;border-radius:4px;font-size:11px;font-weight:800;min-width:44px;text-align:center;">${ch.isLocal ? 'OFFLINE' : '#' + ch.number}</span>
+      <span style="font-size:12px;font-weight:600;color:#FFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${safeTitle}">${safeTitle}</span>
     `;
     el.addEventListener('click', () => selectChapter(ch, 0));
-    container.appendChild(el);
+    fragment.appendChild(el);
+  });
+  container.appendChild(fragment);
+}
+
+function updateCatalogSelection() {
+  if (!currentChapter) return;
+  const items = document.querySelectorAll('#chapter-list .chapter-item');
+  items.forEach(el => {
+    const num = parseFloat(el.getAttribute('data-chapter-number'));
+    if (num === currentChapter.number) {
+      el.classList.add('active', 'selected');
+    } else {
+      el.classList.remove('active', 'selected');
+    }
   });
 }
 
@@ -243,6 +297,8 @@ async function selectChapter(chapter, startPage = 0) {
   if (select) select.value = chapter.number;
 
   document.getElementById('status-ch-title').textContent = chapter.title;
+
+  updateCatalogSelection();
 
   const loader = document.getElementById('reader-loader');
   if (loader) loader.style.display = 'block';
@@ -307,6 +363,24 @@ function extractImagesFromHtml(html) {
   return results;
 }
 
+function preloadAdjacentPages() {
+  if (typeof Image === 'undefined') return;
+  if (isContinuous || !currentPages || currentPages.length === 0) return;
+  const toPreload = [];
+  if (currentPageIndex + 1 < currentPages.length) {
+    toPreload.push(currentPages[currentPageIndex + 1]);
+  }
+  if (currentPageIndex - 1 >= 0) {
+    toPreload.push(currentPages[currentPageIndex - 1]);
+  }
+  toPreload.forEach(url => {
+    const img = new Image();
+    img.referrerPolicy = 'no-referrer';
+    img.decoding = 'async';
+    img.src = url;
+  });
+}
+
 function renderPages() {
   const singleWrap = document.getElementById('single-page-wrapper');
   const contWrap = document.getElementById('continuous-wrapper');
@@ -319,15 +393,18 @@ function renderPages() {
     singleControls.style.display = 'none';
     contWrap.innerHTML = '';
 
+    const fragment = document.createDocumentFragment();
     currentPages.forEach((url, i) => {
       const img = document.createElement('img');
       img.className = 'continuous-img';
       img.setAttribute('referrerpolicy', 'no-referrer');
+      img.setAttribute('decoding', 'async');
       img.src = url;
       img.alt = `Page ${i + 1}`;
       img.loading = 'lazy';
-      contWrap.appendChild(img);
+      fragment.appendChild(img);
     });
+    contWrap.appendChild(fragment);
     document.getElementById('reader-scroll-container').scrollTop = 0;
   } else {
     singleWrap.style.display = 'flex';
@@ -337,11 +414,14 @@ function renderPages() {
     const imgEl = document.getElementById('current-page-img');
     if (imgEl && currentPages[currentPageIndex]) {
       imgEl.setAttribute('referrerpolicy', 'no-referrer');
+      imgEl.setAttribute('decoding', 'async');
       imgEl.src = currentPages[currentPageIndex];
       imgEl.style.transform = `scale(${zoomFactor})`;
     }
     pageBadge.textContent = `Page ${currentPageIndex + 1} of ${currentPages.length}`;
     document.getElementById('reader-scroll-container').scrollTop = 0;
+
+    preloadAdjacentPages();
   }
 }
 
@@ -379,7 +459,7 @@ function goPreviousChapter(toLast = false) {
 
 function toggleReadingMode() {
   isContinuous = !isContinuous;
-  document.getElementById('btn-mode-toggle').textContent = isContinuous ? '📜 Continuous' : '📖 Single';
+  document.getElementById('btn-mode-toggle').textContent = isContinuous ? 'Continuous' : 'Single';
   renderPages();
 }
 
@@ -396,21 +476,34 @@ function toggleFullscreen() {
 }
 
 function handleKeyDown(e) {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  const readerView = document.getElementById('view-reader');
+  const readerSub = document.getElementById('rsub-reader');
+  if (!readerView || !readerView.classList.contains('active')) return;
+  if (!readerSub || !readerSub.classList.contains('active')) return;
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
   if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
     if (isContinuous && e.key === ' ') return;
-    if (e.shiftKey) prevPage(); else nextPage();
     e.preventDefault();
+    if (e.shiftKey) prevPage(); else nextPage();
   } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-    prevPage(); e.preventDefault();
+    e.preventDefault();
+    prevPage();
   } else if (e.key === 'f' || e.key === 'F' || e.key === 'F11') {
-    toggleFullscreen(); e.preventDefault();
+    e.preventDefault();
+    toggleFullscreen();
   } else if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
-    addCurrentBookmark(); e.preventDefault();
+    e.preventDefault();
+    addCurrentBookmark();
   }
 }
 
 function handleWheel(e) {
+  const readerView = document.getElementById('view-reader');
+  const readerSub = document.getElementById('rsub-reader');
+  if (!readerView || !readerView.classList.contains('active')) return;
+  if (!readerSub || !readerSub.classList.contains('active')) return;
+
   if (e.ctrlKey) {
     e.preventDefault();
     setZoom(e.deltaY < 0 ? zoomFactor + 0.1 : Math.max(0.5, zoomFactor - 0.1));
@@ -419,16 +512,19 @@ function handleWheel(e) {
 
 // BOOKMARKS
 function getBookmarks() {
+  try {
+    const local = JSON.parse(localStorage.getItem(STORAGE_BOOKMARKS));
+    if (Array.isArray(local) && local.length > 0) return local;
+  } catch(e) {}
   if (typeof AccountManager !== 'undefined') {
-    return AccountManager.getBookmarks();
+    return AccountManager.getBookmarks() || [];
   }
-  try { return JSON.parse(localStorage.getItem(STORAGE_BOOKMARKS)) || []; } catch(e) { return []; }
+  return [];
 }
 function saveBookmarks(bms) {
+  try { localStorage.setItem(STORAGE_BOOKMARKS, JSON.stringify(bms)); } catch(e) {}
   if (typeof AccountManager !== 'undefined') {
     AccountManager.saveBookmarks(bms);
-  } else {
-    localStorage.setItem(STORAGE_BOOKMARKS, JSON.stringify(bms));
   }
   updateBookmarksBadge();
 }
@@ -437,7 +533,7 @@ function addCurrentBookmark() {
   const bms = getBookmarks();
   bms.unshift({ chapterNumber: currentChapter.number, chapterTitle: currentChapter.title, pageIndex: currentPageIndex, timestamp: Date.now() });
   saveBookmarks(bms);
-  alert(`🔖 Bookmarked ${currentChapter.title} - Page ${currentPageIndex + 1}!`);
+  alert(`Bookmarked ${currentChapter.title} - Page ${currentPageIndex + 1}!`);
 }
 function updateBookmarksBadge() {
   const c = getBookmarks().length;
@@ -451,16 +547,16 @@ function renderBookmarksTab() {
   if (bms.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
   grid.innerHTML = bms.map((b, idx) => `
-    <div style="background:#141722;border:1px solid #232736;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <span style="background:#202432;color:#DD53B4;padding:2px 8px;border-radius:4px;font-weight:bold;font-size:11px;">#${b.chapterNumber}</span>
-        <span style="font-size:11px;color:#8B94A7;">${new Date(b.timestamp).toLocaleDateString()}</span>
+        <span style="font-size:11px;color:var(--text-muted);">${new Date(b.timestamp).toLocaleDateString()}</span>
       </div>
       <div style="font-weight:bold;font-size:14px;">${b.chapterTitle}</div>
-      <div style="font-size:12px;color:#8B94A7;">Page ${b.pageIndex + 1}</div>
+      <div style="font-size:12px;color:var(--text-muted);">Page ${b.pageIndex + 1}</div>
       <div style="display:flex;gap:8px;margin-top:6px;">
-        <button class="btn btn-accent" style="flex:1;" onclick="resumeBookmark(${b.chapterNumber}, ${b.pageIndex})">Resume ▶</button>
-        <button class="btn" style="color:#FF6B6B;" onclick="deleteBookmark(${idx})">🗑️ Delete</button>
+        <button class="btn btn-accent" style="flex:1;" onclick="resumeBookmark(${b.chapterNumber}, ${b.pageIndex})">Resume</button>
+        <button class="btn" style="color:#FF6B6B;" onclick="deleteBookmark(${idx})">Delete</button>
       </div>
     </div>
   `).join('');
@@ -558,7 +654,7 @@ function renderDownloadsTab() {
       <div style="height:6px;background:#242836;border-radius:3px;overflow:hidden;">
         <div id="prog-${ch.number}" style="height:100%;background:#DD53B4;width:0%;"></div>
       </div>
-      <span id="stat-${ch.number}" style="text-align:right;font-size:12px;color:#8B94A7;">Ready</span>
+      <span id="stat-${ch.number}" style="text-align:right;font-size:12px;color:var(--text-muted);">Ready</span>
     </div>
   `).join('');
   updateDlCount();
@@ -595,7 +691,7 @@ async function startBatchDownload() {
 
 // STANDALONE PORTABLE JJK READER GENERATOR
 function generatePortableReaderHtml() {
-  const jsonChapters = JSON.stringify(allChapters);
+  const jsonChapters = JSON.stringify(allChapters).replace(/</g, '\\u003c');
   const portableHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -772,14 +868,14 @@ function generatePortableReaderHtml() {
       <span style="font-size:11px;color:var(--text-muted);">Stand-alone Reader</span>
     </div>
     <div class="header-controls">
-      <button class="btn" id="btn-prev-ch">◀ Prev Ch</button>
+      <button class="btn" id="btn-prev-ch">Prev Ch</button>
       <select id="select-ch"></select>
-      <button class="btn btn-accent" id="btn-next-ch">Next Ch ▶</button>
-      <button class="btn" id="btn-mode-toggle">📖 Single</button>
+      <button class="btn btn-accent" id="btn-next-ch">Next Ch</button>
+      <button class="btn" id="btn-mode-toggle">Single</button>
       <button class="btn" id="btn-fit">Fit</button>
       <button class="btn" id="btn-zoom-in">+</button>
       <button class="btn" id="btn-zoom-out">−</button>
-      <button class="btn" id="btn-fullscreen">⛶ Fullscreen</button>
+      <button class="btn" id="btn-fullscreen">Fullscreen</button>
     </div>
   </header>
   <div class="main-area">
@@ -801,9 +897,9 @@ function generatePortableReaderHtml() {
       <footer>
         <div id="status-title" style="font-weight:700;">Loading...</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <button class="btn" id="btn-p-prev">◀ Prev Page</button>
+          <button class="btn" id="btn-p-prev">Prev Page</button>
           <span id="page-counter" style="background:#222736;padding:3px 8px;border-radius:4px;font-weight:700;">Page 1</span>
-          <button class="btn btn-accent" id="btn-p-next">Next Page ▶</button>
+          <button class="btn btn-accent" id="btn-p-next">Next Page</button>
         </div>
         <div style="color:var(--text-muted);">[Space / D / →] Next · [A / ←] Prev · [F] Fullscreen</div>
       </footer>
@@ -858,15 +954,25 @@ function generatePortableReaderHtml() {
         if (e.target.tagName === 'INPUT') return;
         if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
           if (isContinuous && e.key === ' ') return;
+          e.preventDefault();
           if (e.shiftKey) prevP(); else nextP();
         } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+          e.preventDefault();
           prevP();
         } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
           if (!document.fullscreenElement) document.documentElement.requestFullscreen();
           else document.exitFullscreen();
         }
       });
       if (CHAPTERS.length > 0) loadChapter(CHAPTERS[0], 0);
+    }
+
+    function escapeHtml(str) {
+      if (str == null) return '';
+      const div = document.createElement('div');
+      div.textContent = String(str);
+      return div.innerHTML;
     }
 
     function renderList(list) {
@@ -875,7 +981,7 @@ function generatePortableReaderHtml() {
       list.forEach(ch => {
         const item = document.createElement('div');
         item.className = 'ch-item' + (currentCh && currentCh.number === ch.number ? ' active' : '');
-        item.innerHTML = '<span class="ch-badge">#' + ch.number + '</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + ch.title + '</span>';
+        item.innerHTML = '<span class="ch-badge">#' + ch.number + '</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(ch.title) + '</span>';
         item.onclick = () => loadChapter(ch, 0);
         container.appendChild(item);
       });
@@ -886,7 +992,13 @@ function generatePortableReaderHtml() {
       pageIndex = page || 0;
       document.getElementById('select-ch').value = ch.number;
       document.getElementById('status-title').textContent = ch.title;
-      renderList(CHAPTERS);
+      const searchInput = document.getElementById('search-ch');
+      const q = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      if (q) {
+        renderList(CHAPTERS.filter(c => c.title.toLowerCase().includes(q) || String(c.number).includes(q)));
+      } else {
+        renderList(CHAPTERS);
+      }
       render();
     }
 
@@ -899,14 +1011,17 @@ function generatePortableReaderHtml() {
         single.style.display = 'none';
         cont.style.display = 'flex';
         cont.innerHTML = '';
+        const fragment = document.createDocumentFragment();
         pages.forEach((url, i) => {
           const img = document.createElement('img');
           img.className = 'continuous-img';
           img.loading = 'lazy';
+          img.decoding = 'async';
           img.referrerPolicy = 'no-referrer';
           img.src = url;
-          cont.appendChild(img);
+          fragment.appendChild(img);
         });
+        cont.appendChild(fragment);
         document.getElementById('scroll-container').scrollTop = 0;
       } else {
         single.style.display = 'flex';
@@ -945,7 +1060,7 @@ function generatePortableReaderHtml() {
 
     function toggleMode() {
       isContinuous = !isContinuous;
-      document.getElementById('btn-mode-toggle').textContent = isContinuous ? '📜 Continuous' : '📖 Single';
+      document.getElementById('btn-mode-toggle').textContent = isContinuous ? 'Continuous' : 'Single';
       render();
     }
 
@@ -969,7 +1084,7 @@ function generatePortableReaderHtml() {
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 2000);
-  alert('🎉 Standalone JJK Reader (.html) generated!\nYou can open this file in any browser on any OS or Chromebook.');
+  alert('Standalone JJK Reader (.html) generated!\nYou can open this file in any modern web browser.');
 }
 
 function handleLocalFolderSelect(e) {

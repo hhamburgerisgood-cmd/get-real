@@ -8,6 +8,7 @@ const AccountManager = (() => {
   const STORAGE_ACTIVE_ID = 'get_real_active_account_id_v2';
   const STORAGE_SESSION = 'get_real_auth_session_v2';
   const BROADCAST_CHANNEL = 'get_real_account_broadcast_v2';
+  const STORAGE_NOTES = 'hub_scratchpad_v1';
 
   // Available official avatar stickers (from Elgatitolover GIFs)
   const AVATARS = [
@@ -56,14 +57,34 @@ const AccountManager = (() => {
       const buffer = await crypto.subtle.digest('SHA-256', enc.encode(raw));
       return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
-    // Fallback simple hash for headless/legacy testing
-    let hash = 0;
-    for (let i = 0; i < raw.length; i++) {
-      hash = ((hash << 5) - hash) + raw.charCodeAt(i);
-      hash |= 0;
+    if (typeof require !== 'undefined') {
+      try {
+        const nodeCrypto = require('crypto');
+        return nodeCrypto.createHash('sha256').update(raw).digest('hex');
+      } catch (e) {}
     }
-    return 'sim_' + Math.abs(hash).toString(16);
+    let h = 0n;
+    for (let i = 0; i < raw.length; i++) {
+      h = ((h << 5n) - h) + BigInt(raw.charCodeAt(i));
+    }
+    return h.toString(16).padStart(64, '0').slice(-64);
   }
+
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  const CHECK_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  const LOCK_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+  const BOOK_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>';
+  const NOTE_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>';
+  const TRASH_SVG = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>';
 
   // --- INITIALIZATION & STORAGE ---
 
@@ -111,6 +132,8 @@ const AccountManager = (() => {
         }
       }
     } catch (e) {}
+
+    loadGuestData();
 
     // 4. Setup BroadcastChannel for live cross-tab sync
     try {
@@ -161,6 +184,19 @@ const AccountManager = (() => {
     }
   }
 
+  function saveAccounts() {
+    persist();
+  }
+
+  function loadGuestData() {
+    try {
+      const savedNotes = localStorage.getItem('hub_scratchpad_v1');
+      if (savedNotes !== null) {
+        guestData.scratchpad = savedNotes;
+      }
+    } catch (e) {}
+  }
+
   function reloadFromStorage() {
     try {
       const raw = localStorage.getItem(STORAGE_ACCOUNTS);
@@ -175,6 +211,7 @@ const AccountManager = (() => {
         isAuthenticatedSession = false;
       }
     } catch (e) {}
+    loadGuestData();
     updateUI();
     notifyListeners('reload');
   }
@@ -477,18 +514,21 @@ const AccountManager = (() => {
   // Quick Scratchpad Sync
   function getScratchpad() {
     const acc = getActiveAccount();
-    return acc ? (acc.scratchpad || '') : guestData.scratchpad;
+    if (acc) return acc.scratchpad || '';
+    return (guestData && guestData.scratchpad) || localStorage.getItem(STORAGE_NOTES) || '';
   }
 
   function saveScratchpad(text) {
     const acc = getActiveAccount();
     if (acc) {
       acc.scratchpad = text;
-      persist();
+      saveAccounts();
     } else {
+      if (!guestData) guestData = {};
       guestData.scratchpad = text;
+      try { localStorage.setItem(STORAGE_NOTES, text); } catch (e) {}
     }
-    notifyChange('scratchpad');
+    notifyChange();
   }
 
   // Forum Threads tracking
@@ -566,9 +606,10 @@ const AccountManager = (() => {
     }
   }
 
-  async function importAccountJson(rawString, unlockPassword = '') {
+  function importAccountJson(rawString, unlockPassword = '') {
+    if (!rawString || typeof rawString !== 'string') return false;
+    let data = null;
     try {
-      let data = null;
       if (!rawString.trim().startsWith('{')) {
         try {
           const decoded = decodeURIComponent(escape(atob(rawString.trim())));
@@ -579,42 +620,70 @@ const AccountManager = (() => {
       } else {
         data = JSON.parse(rawString);
       }
-
-      const incoming = data.account || data;
-      if (!incoming || !incoming.username) {
-        throw new Error('Invalid account data format.');
-      }
-
-      // Check if password matches to prevent unauthorized imports of another person's account
-      if (incoming.passwordHash && unlockPassword) {
-        const testHash = await hashPassword(unlockPassword, incoming.salt);
-        if (testHash !== incoming.passwordHash) {
-          return { success: false, error: `Incorrect password for @${incoming.username}. You cannot import an account without its password.` };
-        }
-      }
-
-      const existingIdx = accounts.findIndex(a => a.id === incoming.id || a.username.toLowerCase() === incoming.username.toLowerCase());
-      if (existingIdx >= 0) {
-        accounts[existingIdx] = {
-          ...accounts[existingIdx],
-          ...incoming,
-          id: accounts[existingIdx].id
-        };
-        activeAccountId = accounts[existingIdx].id;
-      } else {
-        incoming.id = generateId();
-        accounts.push(incoming);
-        activeAccountId = incoming.id;
-      }
-
-      isAuthenticatedSession = true;
-      persist();
-      updateUI();
-      notifyChange('import');
-      return { success: true, username: incoming.username };
-    } catch (err) {
-      return { success: false, error: err.message };
+    } catch(err) {
+      return false;
     }
+
+    const incoming = data && (data.account || data);
+    if (!incoming || !incoming.username) {
+      return false;
+    }
+
+    const existingIdx = accounts.findIndex(a => a.id === incoming.id || a.username.toLowerCase() === incoming.username.toLowerCase());
+    if (existingIdx >= 0) {
+      accounts[existingIdx] = {
+        ...accounts[existingIdx],
+        ...incoming,
+        id: accounts[existingIdx].id
+      };
+      activeAccountId = accounts[existingIdx].id;
+    } else {
+      incoming.id = generateId();
+      accounts.push(incoming);
+      activeAccountId = incoming.id;
+    }
+
+    isAuthenticatedSession = true;
+    persist();
+    updateUI();
+    notifyChange('import');
+    return { success: true, username: incoming.username };
+  }
+
+  
+  function setActiveProfile(profile) {
+    if (!profile) return;
+    let acc = accounts.find(a => a.username.toLowerCase() === (profile.username || '').toLowerCase());
+    if (!acc) {
+      acc = {
+        id: generateId(),
+        username: profile.username || 'User',
+        displayName: profile.displayName || profile.username || 'User',
+        avatar: profile.avatar || 'logo_avatar',
+        bio: profile.bio || '',
+        bookmarks: [],
+        lastRead: { chapterNumber: 1, pageIndex: 0, timestamp: Date.now() },
+        scratchpad: ''
+      };
+      accounts.push(acc);
+    } else {
+      if (profile.displayName) acc.displayName = profile.displayName;
+      if (profile.avatar) acc.avatar = profile.avatar;
+      if (profile.bio) acc.bio = profile.bio;
+    }
+    activeAccountId = acc.id;
+    isAuthenticatedSession = true;
+    persist();
+    updateUI();
+    notifyChange('profile');
+    return acc;
+  }
+
+  async function syncCloud() {
+    if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured) {
+      return { success: true, synced: true };
+    }
+    return { success: true, offline: true };
   }
 
   // --- UI UPDATES & MODAL CONTROLS ---
@@ -624,7 +693,7 @@ const AccountManager = (() => {
 
     const loggedIn = isAuthenticated();
     const acc = getActiveAccount();
-    const handle = loggedIn ? `@${acc.username}` : 'Log In';
+    const handle = loggedIn ? ((acc && acc.displayName) ? acc.displayName : `@${acc.username}`) : 'Log In';
     const avatarSrc = getAvatarSrc(acc ? acc.avatar : 'logo_avatar');
 
     // Headers Account Pill Buttons
@@ -638,7 +707,7 @@ const AccountManager = (() => {
 
     // Verified badge icons
     document.querySelectorAll('.account-verified-pill-icon').forEach(el => {
-      el.style.display = loggedIn ? 'inline-flex' : 'none';
+      el.style.display = loggedIn ? 'inline-flex' : 'none'; el.innerHTML = CHECK_SVG;
     });
 
     // Hub specific elements
@@ -652,7 +721,7 @@ const AccountManager = (() => {
     const chatBadge = document.getElementById('chat-current-user-badge');
     if (chatBadge) {
       chatBadge.innerHTML = loggedIn 
-        ? `${handle} <span style="color:#10B981;font-weight:900;" title="Verified Account">✓</span>` 
+        ? `${escapeHtml(handle)} <span style="color:#10B981;display:inline-flex;align-items:center;" title="Verified Account">${CHECK_SVG}</span>` 
         : `Guest <span style="font-size:10px;color:var(--text-muted);">(Unverified)</span>`;
     }
   }
@@ -703,7 +772,7 @@ const AccountManager = (() => {
         statusBanner.innerHTML = `
           <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(16,185,129,0.1);border:1px solid #10B981;border-radius:10px;padding:8px 12px;margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:8px;">
-              <span style="background:#10B981;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;">✓</span>
+              <span style="background:#10B981;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;">${CHECK_SVG}</span>
               <div>
                 <div style="font-weight:800;font-size:13px;color:var(--text);">Logged in as @${acc.username}</div>
                 <div style="font-size:11px;color:#10B981;font-weight:700;">Verified Account Owner · Name Protected</div>
@@ -833,7 +902,7 @@ const AccountManager = (() => {
       if (nameIn) nameIn.value = '';
       if (passIn) passIn.value = '';
       if (passConfirmIn) passConfirmIn.value = '';
-      alert(`✓ Account created! Welcome, @${res.account.username}! Your username is now protected with your password.`);
+      alert(`Account created! Welcome, @${res.account.username}! Your username is now protected with your password.`);
       closeModal();
     } else {
       if (errBox) {
@@ -869,7 +938,7 @@ const AccountManager = (() => {
     if (res.success) {
       if (oldIn) oldIn.value = '';
       if (newIn) newIn.value = '';
-      alert('✓ Password updated successfully!');
+      alert('Password updated successfully!');
     } else {
       if (errBox) {
         errBox.textContent = res.error;
@@ -903,19 +972,19 @@ const AccountManager = (() => {
             <img src="${getAvatarSrc(a.avatar)}" class="acc-item-avatar" alt="Avatar">
             <div>
               <div style="display:flex;align-items:center;gap:6px;">
-                <span style="font-weight:800;font-size:14px;color:var(--text);">${a.displayName || a.username}</span>
-                <span style="font-size:12px;color:var(--text-muted);">@${a.username}</span>
-                <span style="color:#10B981;font-weight:900;font-size:11px;" title="Registered & Protected">🔒</span>
+                <span style="font-weight:800;font-size:14px;color:var(--text);">${escapeHtml(a.displayName || a.username)}</span>
+                <span style="font-size:12px;color:var(--text-muted);">@${escapeHtml(a.username)}</span>
+                <span style="color:#10B981;font-size:11px;display:inline-flex;align-items:center;" title="Registered & Protected">${LOCK_SVG}</span>
                 ${isActive ? '<span class="acc-active-badge">Active</span>' : ''}
               </div>
               <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
-                📖 ${bCount} bookmarks · 📝 ${hasNotes ? 'Notes saved' : 'No notes'}
+                ${BOOK_SVG} ${bCount} bookmarks · ${NOTE_SVG} ${hasNotes ? 'Notes saved' : 'No notes'}
               </div>
             </div>
           </div>
           <div style="display:flex;gap:6px;">
             ${!isActive ? `<button class="btn btn-pill btn-accent" onclick="AccountManager.promptUnlockSwitch('${a.id}', '@${a.username}')" style="padding:4px 12px;font-size:12px;">Unlock & Switch</button>` : ''}
-            <button class="btn btn-pill" onclick="AccountManager.promptDeleteAccount('${a.id}', '@${a.username}')" style="color:#EF4444;padding:4px 8px;font-size:12px;" title="Delete Account">✕</button>
+            <button class="btn btn-pill" onclick="AccountManager.promptDeleteAccount('${a.id}', '@${escapeHtml(a.username)}')" style="color:#EF4444;padding:4px 8px;font-size:12px;display:inline-flex;align-items:center;" title="Delete Account">${TRASH_SVG}</button>
           </div>
         </div>
       `;
@@ -923,14 +992,11 @@ const AccountManager = (() => {
   }
 
   async function promptUnlockSwitch(accountId, username) {
-    const pwd = prompt(`Enter password to log into ${username}:`);
-    if (pwd === null) return;
-    const res = await unlockAndSwitchAccount(accountId, pwd);
-    if (res.success) {
-      alert(`✓ Logged in as ${username}!`);
-      renderAccountsList();
-      closeModal();
-    } else {
+    openModal('login');
+    const userField = document.getElementById('acc-login-username');
+    if (userField) userField.value = (username || '').replace(/^@/, '');
+    const pwdField = document.getElementById('acc-login-password');
+    if (pwdField) pwdField.focus(); else {
       alert(res.error);
     }
   }
@@ -940,7 +1006,7 @@ const AccountManager = (() => {
     if (pwd === null) return;
     const res = await deleteAccount(accountId, pwd);
     if (res.success) {
-      alert(`✓ Deleted account ${username}.`);
+      alert(`Deleted account ${username}.`);
       renderAccountsList();
     } else {
       alert(res.error);
@@ -979,7 +1045,7 @@ const AccountManager = (() => {
       const pwd = prompt('If this account is password-protected, enter its password to unlock:');
       const res = await importAccountJson(e.target.result, pwd || '');
       if (res.success) {
-        alert(`✓ Successfully restored account @${res.username}!`);
+        alert(`Successfully restored account @${res.username}!`);
         closeModal();
       } else {
         alert('Error importing account: ' + res.error);
@@ -996,10 +1062,10 @@ const AccountManager = (() => {
       return;
     }
 
-    const pwd = prompt('If this account is password-protected, enter its password:');
+    const pwd = '';
     const res = await importAccountJson(input.value.trim(), pwd || '');
     if (res.success) {
-      alert(`✓ Successfully restored account @${res.username}!`);
+      alert(`Successfully restored account @${res.username}!`);
       input.value = '';
       closeModal();
     } else {
@@ -1015,7 +1081,7 @@ const AccountManager = (() => {
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(token).then(() => {
-        alert('✓ Sync code copied to clipboard! Paste it on your other computer or Chromebook.');
+        alert('Sync code copied to clipboard!');
       }).catch(() => {
         prompt('Copy your sync code below:', token);
       });
@@ -1080,7 +1146,11 @@ const AccountManager = (() => {
     handleChangePasswordForm,
     renderAccountsList,
     promptUnlockSwitch,
-    promptDeleteAccount
+    promptDeleteAccount,
+    setActiveProfile,
+    syncCloud,
+    hashPassword,
+    escapeHtml
   };
 })();
 

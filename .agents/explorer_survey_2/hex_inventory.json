@@ -1,0 +1,1144 @@
+{
+  "index.html": [
+    {
+      "line": 34,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "<span class=\"account-username-text\" id=\"hub-account-name\">Log In</span><span class=\"account-verified-pill-icon\" style=\"color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;\" title=\"Verified Account\">✓</span>"
+    },
+    {
+      "line": 113,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "<span class=\"account-username-text\">Log In</span><span class=\"account-verified-pill-icon\" style=\"color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;\" title=\"Verified Account\">✓</span>"
+    },
+    {
+      "line": 126,
+      "colors": [
+        "#242836"
+      ],
+      "content": "<div style=\"padding:10px 12px;border-bottom:1px solid #242836;display:flex;justify-content:space-between;align-items:center;\">"
+    },
+    {
+      "line": 127,
+      "colors": [
+        "#8B94A7"
+      ],
+      "content": "<span style=\"font-size:11px;font-weight:700;color:#8B94A7;\">CHAPTERS</span>"
+    },
+    {
+      "line": 131,
+      "colors": [
+        "#0D0E13",
+        "#242836",
+        "#FFF"
+      ],
+      "content": "<input type=\"text\" id=\"search-input\" placeholder=\"Search chapters...\" style=\"width:100%;background:#0D0E13;border:1px solid #242836;color:#FFF;padding:6px 10px;border-radius:6px;\" />"
+    },
+    {
+      "line": 144,
+      "colors": [
+        "#334155",
+        "#E2E8F0"
+      ],
+      "content": "<div id=\"reader-loader\" style=\"display:none;position:absolute;background:rgba(10,11,14,0.9);padding:12px 20px;border-radius:8px;border:1px solid #334155;color:#E2E8F0;font-weight:600;\">Loading pages...</div>"
+    },
+    {
+      "line": 148,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "<div id=\"status-ch-title\" style=\"font-weight:700;color:#FFF;\">Ready</div>"
+    },
+    {
+      "line": 164,
+      "colors": [
+        "#8B94A7"
+      ],
+      "content": "<p style=\"color:#8B94A7;font-size:12px;\">Saved points from your reading sessions on this device.</p>"
+    },
+    {
+      "line": 166,
+      "colors": [
+        "#FF6B6B"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-clear-bookmarks\" style=\"color:#FF6B6B;\">Clear All</button>"
+    },
+    {
+      "line": 169,
+      "colors": [
+        "#8B94A7"
+      ],
+      "content": "<div id=\"bookmarks-empty\" style=\"display:none;text-align:center;padding:40px;color:#8B94A7;\">No bookmarks saved. Press <strong>Ctrl + B</strong> while reading to add one!</div>"
+    },
+    {
+      "line": 204,
+      "colors": [
+        "#242836",
+        "#141722"
+      ],
+      "content": "<div style=\"padding:12px 18px;border-bottom:1px solid #242836;display:flex;justify-content:space-between;align-items:center;background:#141722;\">"
+    },
+    {
+      "line": 208,
+      "colors": [
+        "#8B94A7"
+      ],
+      "content": "<span style=\"font-size:12px;color:#8B94A7;margin-left:8px;\" id=\"dl-selected-count\">0 chapters selected</span>"
+    },
+    {
+      "line": 211,
+      "colors": [
+        "#1C1F28"
+      ],
+      "content": "<select id=\"dl-format-select\" class=\"btn\" style=\"background:#1C1F28;\">"
+    },
+    {
+      "line": 236,
+      "colors": [
+        "#38BDF8"
+      ],
+      "content": "<span style=\"font-weight:800;font-size:14px;color:#38BDF8;\">LIVE CHAT ROOM</span>"
+    },
+    {
+      "line": 253,
+      "colors": [
+        "#0284C7",
+        "#38BDF8"
+      ],
+      "content": "<button class=\"btn btn-accent btn-pill\" id=\"chat-btn-create-room\" onclick=\"ChatApp.openCreateRoomModal()\" style=\"background:#0284C7;border-color:#38BDF8;font-size:11px;padding:4px 10px;\">"
+    },
+    {
+      "line": 264,
+      "colors": [
+        "#10B981",
+        "#064E3B"
+      ],
+      "content": "<span id=\"chat-active-count\" style=\"background:#10B981;color:#064E3B;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:800;\">● Online</span>"
+    },
+    {
+      "line": 311,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "<span class=\"account-username-text\">Log In</span><span class=\"account-verified-pill-icon\" style=\"color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;\" title=\"Verified Account\">✓</span>"
+    },
+    {
+      "line": 373,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "<span class=\"account-username-text\">Log In</span><span class=\"account-verified-pill-icon\" style=\"color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;\" title=\"Verified Account\">✓</span>"
+    },
+    {
+      "line": 421,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "<div style=\"font-weight:800;font-size:17px;color:#FFF;\">Chat Rooms</div>"
+    },
+    {
+      "line": 422,
+      "colors": [
+        "#94A3B8"
+      ],
+      "content": "<div style=\"font-size:12px;color:#94A3B8;\">Browse public rooms or join private rooms with password</div>"
+    },
+    {
+      "line": 429,
+      "colors": [
+        "#0F172A",
+        "#334155",
+        "#FFF"
+      ],
+      "content": "<input type=\"text\" id=\"chat-room-search-input\" placeholder=\"Search rooms...\" style=\"flex:1;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;\" />"
+    },
+    {
+      "line": 430,
+      "colors": [
+        "#0284C7",
+        "#38BDF8"
+      ],
+      "content": "<button class=\"btn btn-accent\" onclick=\"ChatApp.openCreateRoomModal()\" style=\"background:#0284C7;border-color:#38BDF8;white-space:nowrap;font-weight:700;\">＋ Create Room</button>"
+    },
+    {
+      "line": 445,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "<div style=\"font-weight:800;font-size:17px;color:#FFF;\">✨ Create a Chat Room</div>"
+    },
+    {
+      "line": 452,
+      "colors": [
+        "#94A3B8"
+      ],
+      "content": "<label style=\"display:block;font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:4px;text-transform:uppercase;\">Room Name *</label>"
+    },
+    {
+      "line": 453,
+      "colors": [
+        "#0F172A",
+        "#334155",
+        "#FFF"
+      ],
+      "content": "<input type=\"text\" id=\"new-room-name-input\" required maxlength=\"30\" placeholder=\"e.g. Anime Club, Chill Lounge, Homework\" style=\"width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;\" />"
+    },
+    {
+      "line": 457,
+      "colors": [
+        "#94A3B8"
+      ],
+      "content": "<label style=\"display:block;font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:4px;text-transform:uppercase;\">Topic / Description (Optional)</label>"
+    },
+    {
+      "line": 458,
+      "colors": [
+        "#0F172A",
+        "#334155",
+        "#FFF"
+      ],
+      "content": "<input type=\"text\" id=\"new-room-desc-input\" maxlength=\"70\" placeholder=\"What is this room about?\" style=\"width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;\" />"
+    },
+    {
+      "line": 461,
+      "colors": [
+        "#0B132B",
+        "#1E293B"
+      ],
+      "content": "<div style=\"background:#0B132B;border:1px solid #1E293B;padding:12px;border-radius:10px;\">"
+    },
+    {
+      "line": 463,
+      "colors": [
+        "#E2E8F0"
+      ],
+      "content": "<label for=\"new-room-is-protected\" style=\"font-size:13px;font-weight:700;color:#E2E8F0;cursor:pointer;display:flex;align-items:center;gap:6px;\">"
+    },
+    {
+      "line": 468,
+      "colors": [
+        "#64748B"
+      ],
+      "content": "<div style=\"font-size:11px;color:#64748B;\">Only people with the password can enter. As the creator, you can kick or ban users.</div>"
+    },
+    {
+      "line": 471,
+      "colors": [
+        "#0F172A",
+        "#38BDF8",
+        "#FFF"
+      ],
+      "content": "<input type=\"password\" id=\"new-room-password-input\" placeholder=\"Set room password...\" style=\"width:100%;background:#0F172A;border:1px solid #38BDF8;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;\" />"
+    },
+    {
+      "line": 477,
+      "colors": [
+        "#0284C7",
+        "#38BDF8"
+      ],
+      "content": "<button type=\"submit\" class=\"btn btn-accent\" style=\"background:#0284C7;border-color:#38BDF8;font-weight:800;\">Create & Enter 🚀</button>"
+    },
+    {
+      "line": 490,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "<div style=\"font-weight:800;font-size:16px;color:#FFF;display:flex;align-items:center;gap:6px;\">"
+    },
+    {
+      "line": 495,
+      "colors": [
+        "#94A3B8"
+      ],
+      "content": "<p style=\"font-size:13px;color:#94A3B8;margin-bottom:12px;\" id=\"chat-pwd-modal-text\">This room requires a password to enter:</p>"
+    },
+    {
+      "line": 498,
+      "colors": [
+        "#0F172A",
+        "#334155",
+        "#FFF"
+      ],
+      "content": "<input type=\"password\" id=\"chat-join-password-input\" required placeholder=\"Enter password...\" style=\"width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:9px 12px;border-radius:8px;font-size:13px;margin-bottom:8px;\" />"
+    },
+    {
+      "line": 499,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "<div id=\"chat-password-error\" style=\"display:none;color:#EF4444;font-size:12px;margin-bottom:10px;\">Incorrect password. Please try again.</div>"
+    },
+    {
+      "line": 503,
+      "colors": [
+        "#0284C7",
+        "#38BDF8"
+      ],
+      "content": "<button type=\"submit\" class=\"btn btn-accent\" style=\"background:#0284C7;border-color:#38BDF8;font-weight:800;\">Unlock & Join 🔓</button>"
+    },
+    {
+      "line": 516,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "<div style=\"font-weight:800;font-size:16px;color:#FFF;display:flex;align-items:center;gap:6px;\">"
+    },
+    {
+      "line": 519,
+      "colors": [
+        "#94A3B8"
+      ],
+      "content": "<div style=\"font-size:11px;color:#94A3B8;\" id=\"chat-members-modal-subtitle\">Active participants in this room</div>"
+    },
+    {
+      "line": 524,
+      "colors": [
+        "#94A3B8"
+      ],
+      "content": "<div style=\"font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:8px;\">Active Now</div>"
+    },
+    {
+      "line": 530,
+      "colors": [
+        "#1E293B"
+      ],
+      "content": "<div id=\"chat-host-banned-section\" style=\"display:none;border-top:1px solid #1E293B;padding-top:12px;\">"
+    },
+    {
+      "line": 531,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "<div style=\"font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;margin-bottom:8px;\">Banned From This Room</div>"
+    },
+    {
+      "line": 571,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "<div id=\"acc-login-error\" style=\"display:none;background:rgba(239,68,68,0.1);border:1px solid #EF4444;color:#EF4444;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;\"></div>"
+    },
+    {
+      "line": 590,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "<div id=\"acc-signup-error\" style=\"display:none;background:rgba(239,68,68,0.1);border:1px solid #EF4444;color:#EF4444;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;\"></div>"
+    },
+    {
+      "line": 645,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "<div id=\"acc-pwd-error\" style=\"display:none;color:#EF4444;font-size:12px;margin-bottom:6px;\"></div>"
+    }
+  ],
+  "style.css": [
+    {
+      "line": 6,
+      "colors": [
+        "#FAF9F6"
+      ],
+      "content": "--bg: #FAF9F6;"
+    },
+    {
+      "line": 8,
+      "colors": [
+        "#FFFFFF"
+      ],
+      "content": "--surface: #FFFFFF;"
+    },
+    {
+      "line": 9,
+      "colors": [
+        "#F4F4F5"
+      ],
+      "content": "--surface-muted: #F4F4F5;"
+    },
+    {
+      "line": 10,
+      "colors": [
+        "#E4E4E7"
+      ],
+      "content": "--border: #E4E4E7;"
+    },
+    {
+      "line": 12,
+      "colors": [
+        "#18181B"
+      ],
+      "content": "--text: #18181B;"
+    },
+    {
+      "line": 14,
+      "colors": [
+        "#71717A"
+      ],
+      "content": "--text-muted: #71717A;"
+    },
+    {
+      "line": 16,
+      "colors": [
+        "#DD53B4"
+      ],
+      "content": "--accent: #DD53B4;"
+    },
+    {
+      "line": 17,
+      "colors": [
+        "#C23B9B"
+      ],
+      "content": "--accent-hover: #C23B9B;"
+    },
+    {
+      "line": 23,
+      "colors": [
+        "#0F1117"
+      ],
+      "content": "--bg: #0F1117;"
+    },
+    {
+      "line": 25,
+      "colors": [
+        "#181B26"
+      ],
+      "content": "--surface: #181B26;"
+    },
+    {
+      "line": 26,
+      "colors": [
+        "#222736"
+      ],
+      "content": "--surface-muted: #222736;"
+    },
+    {
+      "line": 27,
+      "colors": [
+        "#2E3547"
+      ],
+      "content": "--border: #2E3547;"
+    },
+    {
+      "line": 29,
+      "colors": [
+        "#F1F5F9"
+      ],
+      "content": "--text: #F1F5F9;"
+    },
+    {
+      "line": 31,
+      "colors": [
+        "#94A3B8"
+      ],
+      "content": "--text-muted: #94A3B8;"
+    },
+    {
+      "line": 33,
+      "colors": [
+        "#38BDF8"
+      ],
+      "content": "--accent: #38BDF8;"
+    },
+    {
+      "line": 34,
+      "colors": [
+        "#0284C7"
+      ],
+      "content": "--accent-hover: #0284C7;"
+    },
+    {
+      "line": 311,
+      "colors": [
+        "#DD53B4",
+        "#FFF"
+      ],
+      "content": ".card-jjk .card-badge { background: #DD53B4; color: #FFF; }"
+    },
+    {
+      "line": 312,
+      "colors": [
+        "#DD53B4"
+      ],
+      "content": ".card-jjk .card-icon { color: #DD53B4; }"
+    },
+    {
+      "line": 313,
+      "colors": [
+        "#DD53B4"
+      ],
+      "content": ".card-jjk:hover { border-color: #DD53B4; }"
+    },
+    {
+      "line": 315,
+      "colors": [
+        "#38BDF8",
+        "#0F172A"
+      ],
+      "content": ".card-chat .card-badge { background: #38BDF8; color: #0F172A; font-weight: 800; }"
+    },
+    {
+      "line": 316,
+      "colors": [
+        "#38BDF8"
+      ],
+      "content": ".card-chat .card-icon { color: #38BDF8; }"
+    },
+    {
+      "line": 317,
+      "colors": [
+        "#38BDF8"
+      ],
+      "content": ".card-chat:hover { border-color: #38BDF8; }"
+    },
+    {
+      "line": 319,
+      "colors": [
+        "#16A34A",
+        "#FFF"
+      ],
+      "content": ".card-forum .card-badge { background: #16A34A; color: #FFF; }"
+    },
+    {
+      "line": 320,
+      "colors": [
+        "#16A34A"
+      ],
+      "content": ".card-forum .card-icon { color: #16A34A; }"
+    },
+    {
+      "line": 321,
+      "colors": [
+        "#16A34A"
+      ],
+      "content": ".card-forum:hover { border-color: #16A34A; }"
+    },
+    {
+      "line": 323,
+      "colors": [
+        "#F43F5E",
+        "#FFF"
+      ],
+      "content": ".card-notes .card-badge { background: #F43F5E; color: #FFF; }"
+    },
+    {
+      "line": 324,
+      "colors": [
+        "#F43F5E"
+      ],
+      "content": ".card-notes .card-icon { color: #F43F5E; }"
+    },
+    {
+      "line": 325,
+      "colors": [
+        "#F43F5E"
+      ],
+      "content": ".card-notes:hover { border-color: #F43F5E; }"
+    },
+    {
+      "line": 487,
+      "colors": [
+        "#090A0E"
+      ],
+      "content": "background: #090A0E;"
+    },
+    {
+      "line": 610,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "color: #FFF;"
+    },
+    {
+      "line": 726,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "color: #FFF;"
+    },
+    {
+      "line": 757,
+      "colors": [
+        "#F59E0B"
+      ],
+      "content": "background: #F59E0B;"
+    },
+    {
+      "line": 758,
+      "colors": [
+        "#000"
+      ],
+      "content": "color: #000;"
+    },
+    {
+      "line": 814,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "color: #FFF;"
+    },
+    {
+      "line": 817,
+      "colors": [
+        "#FFF"
+      ],
+      "content": ".chat-msg.msg-own .msg-user { color: #FFF; }"
+    },
+    {
+      "line": 981,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "color: #EF4444;"
+    },
+    {
+      "line": 989,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "background: #EF4444;"
+    },
+    {
+      "line": 990,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "color: #FFF;"
+    },
+    {
+      "line": 1116,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "color: #10B981;"
+    },
+    {
+      "line": 1207,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "color: #FFF !important;"
+    },
+    {
+      "line": 1482,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "background: #10B981;"
+    },
+    {
+      "line": 1483,
+      "colors": [
+        "#FFFFFF"
+      ],
+      "content": "color: #FFFFFF;"
+    },
+    {
+      "line": 1499,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "color: #10B981;"
+    },
+    {
+      "line": 1509,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "background: #10B981;"
+    },
+    {
+      "line": 1510,
+      "colors": [
+        "#FFFFFF"
+      ],
+      "content": "color: #FFFFFF;"
+    },
+    {
+      "line": 1525,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "background: #10B981;"
+    },
+    {
+      "line": 1526,
+      "colors": [
+        "#FFFFFF"
+      ],
+      "content": "color: #FFFFFF;"
+    }
+  ],
+  "app.js": [
+    {
+      "line": 218,
+      "colors": [
+        "#202432",
+        "#DD53B4"
+      ],
+      "content": "<span style=\"background:#202432;color:#DD53B4;padding:3px 6px;border-radius:4px;font-size:11px;font-weight:800;min-width:44px;text-align:center;\">${ch.isLocal ? 'OFFLINE' : '#' + ch.number}</span>"
+    },
+    {
+      "line": 219,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "<span style=\"font-size:12px;font-weight:600;color:#FFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;\" title=\"${ch.title}\">${ch.title}</span>"
+    },
+    {
+      "line": 454,
+      "colors": [
+        "#141722",
+        "#232736"
+      ],
+      "content": "<div style=\"background:#141722;border:1px solid #232736;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px;\">"
+    },
+    {
+      "line": 456,
+      "colors": [
+        "#202432",
+        "#DD53B4"
+      ],
+      "content": "<span style=\"background:#202432;color:#DD53B4;padding:2px 8px;border-radius:4px;font-weight:bold;font-size:11px;\">#${b.chapterNumber}</span>"
+    },
+    {
+      "line": 457,
+      "colors": [
+        "#8B94A7"
+      ],
+      "content": "<span style=\"font-size:11px;color:#8B94A7;\">${new Date(b.timestamp).toLocaleDateString()}</span>"
+    },
+    {
+      "line": 460,
+      "colors": [
+        "#8B94A7"
+      ],
+      "content": "<div style=\"font-size:12px;color:#8B94A7;\">Page ${b.pageIndex + 1}</div>"
+    },
+    {
+      "line": 463,
+      "colors": [
+        "#FF6B6B"
+      ],
+      "content": "<button class=\"btn\" style=\"color:#FF6B6B;\" onclick=\"deleteBookmark(${idx})\">🗑️ Delete</button>"
+    },
+    {
+      "line": 554,
+      "colors": [
+        "#1A1E29"
+      ],
+      "content": "<div style=\"display:grid;grid-template-columns:40px 70px 1fr 200px 100px;align-items:center;padding:8px 14px;border-bottom:1px solid #1A1E29;font-size:13px;\">"
+    },
+    {
+      "line": 556,
+      "colors": [
+        "#202432",
+        "#DD53B4"
+      ],
+      "content": "<span style=\"background:#202432;color:#DD53B4;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:bold;text-align:center;\">#${ch.number}</span>"
+    },
+    {
+      "line": 558,
+      "colors": [
+        "#242836"
+      ],
+      "content": "<div style=\"height:6px;background:#242836;border-radius:3px;overflow:hidden;\">"
+    },
+    {
+      "line": 559,
+      "colors": [
+        "#DD53B4"
+      ],
+      "content": "<div id=\"prog-${ch.number}\" style=\"height:100%;background:#DD53B4;width:0%;\"></div>"
+    },
+    {
+      "line": 561,
+      "colors": [
+        "#8B94A7"
+      ],
+      "content": "<span id=\"stat-${ch.number}\" style=\"text-align:right;font-size:12px;color:#8B94A7;\">Ready</span>"
+    },
+    {
+      "line": 591,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "if (stat) { stat.textContent = 'Done'; stat.style.color = '#10B981'; }"
+    },
+    {
+      "line": 608,
+      "colors": [
+        "#0F1117"
+      ],
+      "content": "--bg: #0F1117;"
+    },
+    {
+      "line": 609,
+      "colors": [
+        "#181B26"
+      ],
+      "content": "--surface: #181B26;"
+    },
+    {
+      "line": 610,
+      "colors": [
+        "#2E3547"
+      ],
+      "content": "--border: #2E3547;"
+    },
+    {
+      "line": 611,
+      "colors": [
+        "#F1F5F9"
+      ],
+      "content": "--text: #F1F5F9;"
+    },
+    {
+      "line": 612,
+      "colors": [
+        "#94A3B8"
+      ],
+      "content": "--text-muted: #94A3B8;"
+    },
+    {
+      "line": 613,
+      "colors": [
+        "#DD53B4"
+      ],
+      "content": "--accent: #DD53B4;"
+    },
+    {
+      "line": 639,
+      "colors": [
+        "#222736"
+      ],
+      "content": "background: #222736;"
+    },
+    {
+      "line": 651,
+      "colors": [
+        "#2E3547"
+      ],
+      "content": ".btn:hover { background: #2E3547; }"
+    },
+    {
+      "line": 652,
+      "colors": [
+        "#FFF"
+      ],
+      "content": ".btn-accent { background: var(--accent); border-color: var(--accent); color: #FFF; }"
+    },
+    {
+      "line": 655,
+      "colors": [
+        "#222736"
+      ],
+      "content": "background: #222736;"
+    },
+    {
+      "line": 676,
+      "colors": [
+        "#0F1117"
+      ],
+      "content": "background: #0F1117;"
+    },
+    {
+      "line": 678,
+      "colors": [
+        "#FFF"
+      ],
+      "content": "color: #FFF;"
+    },
+    {
+      "line": 693,
+      "colors": [
+        "#222736"
+      ],
+      "content": ".ch-item:hover { background: #222736; }"
+    },
+    {
+      "line": 694,
+      "colors": [
+        "#2E3547"
+      ],
+      "content": ".ch-item.active { background: #2E3547; border-left: 3px solid var(--accent); font-weight: 700; }"
+    },
+    {
+      "line": 696,
+      "colors": [
+        "#222736"
+      ],
+      "content": "background: #222736;"
+    },
+    {
+      "line": 707,
+      "colors": [
+        "#08090C"
+      ],
+      "content": "background: #08090C;"
+    },
+    {
+      "line": 805,
+      "colors": [
+        "#222736"
+      ],
+      "content": "<span id=\"page-counter\" style=\"background:#222736;padding:3px 8px;border-radius:4px;font-weight:700;\">Page 1</span>"
+    }
+  ],
+  "chat.js": [
+    {
+      "line": 337,
+      "colors": [
+        "#64748B"
+      ],
+      "content": "<div style=\"text-align:center;padding:30px;color:#64748B;\">"
+    },
+    {
+      "line": 339,
+      "colors": [
+        "#0284C7",
+        "#38BDF8"
+      ],
+      "content": "<button class=\"btn btn-accent\" onclick=\"ChatApp.openCreateRoomModal()\" style=\"margin-top:10px;background:#0284C7;border-color:#38BDF8;\">＋ Create Room</button>"
+    },
+    {
+      "line": 356,
+      "colors": [
+        "#F59E0B",
+        "#000"
+      ],
+      "content": "${isCreator ? '<span style=\"background:#F59E0B;color:#000;font-size:10px;font-weight:900;padding:1px 5px;border-radius:6px;\">👑 Host</span>' : ''}"
+    },
+    {
+      "line": 363,
+      "colors": [
+        "#F87171"
+      ],
+      "content": "${room.bannedUsers && room.bannedUsers.length > 0 && isCreator ? `<span>•</span><span style=\"color:#F87171;\">🚫 ${room.bannedUsers.length} banned</span>` : ''}"
+    },
+    {
+      "line": 368,
+      "colors": [
+        "#38BDF8"
+      ],
+      "content": "<span style=\"font-size:11px;font-weight:800;color:#38BDF8;padding:5px 10px;\">In Room</span>"
+    },
+    {
+      "line": 375,
+      "colors": [
+        "#EF4444",
+        "#7F1D1D"
+      ],
+      "content": "<button class=\"btn btn-pill\" onclick=\"ChatApp.deleteRoom('${room.id}')\" style=\"color:#EF4444;border-color:#7F1D1D;padding:4px 8px;\" title=\"Delete this room\">🗑️</button>"
+    },
+    {
+      "line": 554,
+      "colors": [
+        "#64748B"
+      ],
+      "content": "activeList.innerHTML = `<div style=\"color:#64748B;font-size:12px;padding:10px;\">No other members online.</div>`;"
+    },
+    {
+      "line": 564,
+      "colors": [
+        "#F59E0B",
+        "#000"
+      ],
+      "content": "${isCreator ? '<span style=\"background:#F59E0B;color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;\">👑 HOST</span>' : ''}"
+    },
+    {
+      "line": 565,
+      "colors": [
+        "#334155",
+        "#94A3B8"
+      ],
+      "content": "${isMe ? '<span style=\"background:#334155;color:#94A3B8;font-size:9px;padding:1px 5px;border-radius:6px;\">YOU</span>' : ''}"
+    },
+    {
+      "line": 584,
+      "colors": [
+        "#261214",
+        "#7F1D1D"
+      ],
+      "content": "<div class=\"member-item-row\" style=\"background:#261214;border-color:#7F1D1D;\">"
+    },
+    {
+      "line": 585,
+      "colors": [
+        "#FCA5A5"
+      ],
+      "content": "<div class=\"member-item-user\" style=\"color:#FCA5A5;\">"
+    },
+    {
+      "line": 587,
+      "colors": [
+        "#7F1D1D",
+        "#FECDD3"
+      ],
+      "content": "<span style=\"font-size:9px;background:#7F1D1D;color:#FECDD3;padding:1px 5px;border-radius:6px;\">BANNED</span>"
+    },
+    {
+      "line": 589,
+      "colors": [
+        "#F87171"
+      ],
+      "content": "<button class=\"btn btn-pill\" onclick=\"ChatApp.unbanUser('${escapeHtml(banned)}')\" style=\"font-size:10px;padding:2px 8px;border-color:#F87171;color:#F87171;\">"
+    },
+    {
+      "line": 825,
+      "colors": [
+        "#64748B"
+      ],
+      "content": "<div class=\"chat-empty\" style=\"text-align:center;padding:40px 20px;color:#64748B;\">"
+    },
+    {
+      "line": 827,
+      "colors": [
+        "#E2E8F0"
+      ],
+      "content": "<div style=\"font-weight:800;font-size:16px;color:#E2E8F0;\">#${escapeHtml(room.name)} is quiet...</div>"
+    }
+  ],
+  "forum.js": [
+    {
+      "line": 283,
+      "colors": [
+        "#888"
+      ],
+      "content": "list.innerHTML = `<div style=\"text-align:center;padding:40px;color:#888;\">No threads yet on /${currentBoard}/. Click \"Start New Thread\" above!</div>`;"
+    },
+    {
+      "line": 365,
+      "colors": [
+        "#800000"
+      ],
+      "content": "<div style=\"font-weight:700;font-size:13px;margin-bottom:8px;color:#800000;\">Post a Reply</div>"
+    },
+    {
+      "line": 367,
+      "colors": [
+        "#AAA"
+      ],
+      "content": "<input type=\"text\" id=\"reply-name-${thread.id}\" value=\"${defaultReplyUser}\" placeholder=\"Name (optional)\" style=\"flex:1;padding:6px;border:1px solid #AAA;font-size:12px;\" />"
+    },
+    {
+      "line": 369,
+      "colors": [
+        "#AAA"
+      ],
+      "content": "<textarea id=\"reply-comment-${thread.id}\" placeholder=\"Comment (start with > for greentext)\" rows=\"3\" style=\"width:100%;padding:6px;border:1px solid #AAA;font-size:12px;box-sizing:border-box;\"></textarea>"
+    }
+  ],
+  "account.js": [
+    {
+      "line": 655,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "? `${handle} <span style=\"color:#10B981;font-weight:900;\" title=\"Verified Account\">✓</span>`"
+    },
+    {
+      "line": 704,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "<div style=\"display:flex;align-items:center;justify-content:space-between;background:rgba(16,185,129,0.1);border:1px solid #10B981;border-radius:10px;padding:8px 12px;margin-bottom:12px;\">"
+    },
+    {
+      "line": 706,
+      "colors": [
+        "#10B981",
+        "#fff"
+      ],
+      "content": "<span style=\"background:#10B981;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;\">✓</span>"
+    },
+    {
+      "line": 709,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "<div style=\"font-size:11px;color:#10B981;font-weight:700;\">Verified Account Owner · Name Protected</div>"
+    },
+    {
+      "line": 718,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "<strong style=\"color:#EF4444;\">Not Logged In:</strong> You are currently in Guest mode. Register a unique username with a password so nobody can impersonate you in chat or forum!"
+    },
+    {
+      "line": 908,
+      "colors": [
+        "#10B981"
+      ],
+      "content": "<span style=\"color:#10B981;font-weight:900;font-size:11px;\" title=\"Registered & Protected\">🔒</span>"
+    },
+    {
+      "line": 918,
+      "colors": [
+        "#EF4444"
+      ],
+      "content": "<button class=\"btn btn-pill\" onclick=\"AccountManager.promptDeleteAccount('${a.id}', '@${a.username}')\" style=\"color:#EF4444;padding:4px 8px;font-size:12px;\" title=\"Delete Account\">✕</button>"
+    }
+  ],
+  "apps.js": [
+    {
+      "line": 10,
+      "colors": [
+        "#161922"
+      ],
+      "content": "bgColor: '#161922',"
+    },
+    {
+      "line": 11,
+      "colors": [
+        "#DD53B4"
+      ],
+      "content": "accentColor: '#DD53B4',"
+    },
+    {
+      "line": 22,
+      "colors": [
+        "#111E2E"
+      ],
+      "content": "bgColor: '#111E2E',"
+    },
+    {
+      "line": 23,
+      "colors": [
+        "#38BDF8"
+      ],
+      "content": "accentColor: '#38BDF8',"
+    },
+    {
+      "line": 34,
+      "colors": [
+        "#1E2419"
+      ],
+      "content": "bgColor: '#1E2419',"
+    },
+    {
+      "line": 35,
+      "colors": [
+        "#84CC16"
+      ],
+      "content": "accentColor: '#84CC16',"
+    },
+    {
+      "line": 46,
+      "colors": [
+        "#281E2E"
+      ],
+      "content": "bgColor: '#281E2E',"
+    },
+    {
+      "line": 47,
+      "colors": [
+        "#F472B6"
+      ],
+      "content": "accentColor: '#F472B6',"
+    }
+  ]
+}

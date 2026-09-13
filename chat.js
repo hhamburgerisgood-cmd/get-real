@@ -1,9 +1,20 @@
-// Live Chat Room Engine with Custom Rooms, Passwords & Host Kick/Ban Controls
+// Live Chat Room Engine with Custom Rooms, Passwords & Moderation
 const ChatApp = (() => {
+  function debounce(fn, delay = 200) {
+    let timer = null;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
   const STORAGE_USER = 'hub_chat_user_handle';
   const STORAGE_MSGS = 'hub_chat_messages_v2';
   const STORAGE_ROOMS = 'hub_chat_rooms_v2';
   const CHAT_CHANNEL_NAME = 'get_real_chat_broadcast_v2';
+  const RATE_LIMIT_COOLDOWN_MS = 1500;
+  let lastSentTime = 0;
+  let chatUnsubscribe = null;
 
   const DEFAULT_ROOMS = [
     {
@@ -38,20 +49,43 @@ const ChatApp = (() => {
     }
   ];
 
+  const ICONS = {
+    lock: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
+    crown: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="2 4 7 14 12 4 17 14 22 4 20 20 4 20 2 4"></polygon></svg>',
+    users: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
+    pencil: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>',
+    trash: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>',
+    check: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+    message: '<svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>'
+  };
+
   let currentRoomId = 'lobby';
-  let currentUser = (typeof AccountManager !== 'undefined') ? AccountManager.getUsername() : (localStorage.getItem(STORAGE_USER) || 'AnonCat');
+  let currentUser = (typeof AccountManager !== 'undefined') ? AccountManager.getUsername() : (localStorage.getItem(STORAGE_USER) || 'Guest');
   let broadcast = null;
-  let roomMembers = {}; // roomId -> Set of usernames
+  let roomMembers = {};
   let unlockedRooms = new Set(['lobby', 'manga-lounge', 'gaming']);
   let pendingJoinRoomId = null;
+  let isInitialized = false;
 
   function init() {
     initRooms();
 
+    if (isInitialized) {
+      renderUserHeader();
+      updateRoomHeader();
+      renderMessages();
+      updateRoomsBadge();
+      if (currentUser) {
+        announcePresence();
+      }
+      return;
+    }
+    isInitialized = true;
+
     if (typeof AccountManager !== 'undefined') {
       currentUser = AccountManager.getUsername();
       AccountManager.onAccountChange((acc) => {
-        currentUser = acc.username;
+        currentUser = (acc && acc.username) ? acc.username : (AccountManager.getUsername() || 'Guest');
         renderUserHeader();
         updateRoomHeader();
         announcePresence();
@@ -82,7 +116,12 @@ const ChatApp = (() => {
     setupInputs();
     updateRoomsBadge();
 
-    // Announce presence
+    if (typeof FirebaseService !== 'undefined') {
+      chatUnsubscribe = FirebaseService.onChatMessages(currentRoomId, () => {
+        renderMessages();
+      });
+    }
+
     if (currentUser) {
       announcePresence();
     }
@@ -152,7 +191,13 @@ const ChatApp = (() => {
 
     if (data.type === 'msg') {
       if (data.roomId === currentRoomId) {
-        renderMessages();
+        const msgs = getMessages();
+        const msg = msgs.find(m => m.id === data.id);
+        if (msg) {
+          appendSingleMessage(msg);
+        } else {
+          renderMessages();
+        }
         playNotificationSound();
       }
     } else if (data.type === 'presence') {
@@ -164,17 +209,17 @@ const ChatApp = (() => {
       trackRoomMember(data.room, data.user);
     } else if (data.type === 'kick') {
       if (data.roomId === currentRoomId && currentUser && data.targetUser.toLowerCase() === currentUser.toLowerCase()) {
-        alert(`⚠️ You were kicked from #${data.roomName} by the host.`);
+        alert(`You were removed from #${data.roomName} by the host.`);
         joinRoom('lobby');
       }
     } else if (data.type === 'ban') {
       if (data.roomId === currentRoomId && currentUser && data.targetUser.toLowerCase() === currentUser.toLowerCase()) {
-        alert(`🚫 You have been banned from #${data.roomName} by the host.`);
+        alert(`You have been banned from #${data.roomName} by the host.`);
         joinRoom('lobby');
       }
     } else if (data.type === 'room_deleted') {
       if (data.roomId === currentRoomId) {
-        alert(`ℹ️ The room #${data.roomName} was closed by the host. Returning to Lobby.`);
+        alert(`The room #${data.roomName} was closed by the host. Returning to Lobby.`);
         joinRoom('lobby');
       }
       updateRoomsBadge();
@@ -199,12 +244,12 @@ const ChatApp = (() => {
   }
 
   function saveMessage(msg) {
-    const msgs = getMessages();
+    let msgs = getMessages();
     msgs.push(msg);
-    if (msgs.length > 250) msgs.shift();
+    if (msgs.length > 250) msgs = msgs.slice(-250);
     localStorage.setItem(STORAGE_MSGS, JSON.stringify(msgs));
     sendSignal({ type: 'msg', roomId: msg.channel, id: msg.id });
-    renderMessages();
+    appendSingleMessage(msg);
   }
 
   // USER MANAGEMENT
@@ -225,14 +270,14 @@ const ChatApp = (() => {
       return;
     }
 
-    const name = prompt('Choose a unique username handle (no duplicates):', currentUser || '');
+    const name = prompt('Choose a unique username handle:', currentUser || '');
     if (!name) return;
 
     const trimmed = name.trim().replace(/^@/, '');
     if (!trimmed) return;
 
     if (typeof ProfanityFilter !== 'undefined' && !ProfanityFilter.isClean(trimmed)) {
-      alert('⚠️ Username contains disallowed language. Please choose a school-safe username.');
+      alert('Username contains disallowed language. Please choose a clean username.');
       return;
     }
 
@@ -254,8 +299,8 @@ const ChatApp = (() => {
     const bannerHost = document.getElementById('chat-banner-room-host');
 
     if (nameText) nameText.textContent = room.name;
-    if (lockIcon) lockIcon.style.display = room.isProtected ? 'inline-block' : 'none';
-    if (hostBadge) hostBadge.style.display = isHostOfCurrentRoom() ? 'inline-block' : 'none';
+    if (lockIcon) lockIcon.style.display = room.isProtected ? 'inline-flex' : 'none';
+    if (hostBadge) hostBadge.style.display = isHostOfCurrentRoom() ? 'inline-flex' : 'none';
 
     if (bannerTitle) bannerTitle.textContent = `#${room.name}`;
     if (bannerDesc) bannerDesc.textContent = room.description || (room.isProtected ? 'Private password-protected room' : 'Public chat room');
@@ -290,7 +335,7 @@ const ChatApp = (() => {
     if (!targetRoom) return;
 
     if (currentUser && isUserBannedFromRoom(targetRoom, currentUser)) {
-      alert(`🚫 You are banned from #${targetRoom.name} by the host.`);
+      alert(`You are banned from #${targetRoom.name} by the host.`);
       return;
     }
 
@@ -300,7 +345,19 @@ const ChatApp = (() => {
       return;
     }
 
+    if (typeof chatUnsubscribe === 'function') {
+      chatUnsubscribe();
+      chatUnsubscribe = null;
+    }
+
     currentRoomId = roomId;
+
+    if (typeof FirebaseService !== 'undefined') {
+      chatUnsubscribe = FirebaseService.onChatMessages(currentRoomId, () => {
+        renderMessages();
+      });
+    }
+
     closeModals();
     updateRoomHeader();
     renderMessages();
@@ -317,7 +374,7 @@ const ChatApp = (() => {
       const searchInput = document.getElementById('chat-room-search-input');
       if (searchInput) {
         searchInput.value = '';
-        searchInput.oninput = (e) => renderRoomsList(e.target.value);
+        searchInput.oninput = debounce((e) => renderRoomsList(e.target.value), 150);
       }
     }
   }
@@ -334,9 +391,9 @@ const ChatApp = (() => {
 
     if (rooms.length === 0) {
       container.innerHTML = `
-        <div style="text-align:center;padding:30px;color:#64748B;">
+        <div style="text-align:center;padding:30px;color:var(--text-muted);">
           <div>No rooms match "${escapeHtml(filter)}"</div>
-          <button class="btn btn-accent" onclick="ChatApp.openCreateRoomModal()" style="margin-top:10px;background:#0284C7;border-color:#38BDF8;">＋ Create Room</button>
+          <button class="btn btn-accent" onclick="ChatApp.openCreateRoomModal()" style="margin-top:10px;">Create Room</button>
         </div>
       `;
       return;
@@ -352,27 +409,27 @@ const ChatApp = (() => {
           <div class="room-item-left">
             <div class="room-item-name">
               <span>#${escapeHtml(room.name)}</span>
-              ${room.isProtected ? '<span title="Password Protected" style="font-size:12px;">🔒</span>' : ''}
-              ${isCreator ? '<span style="background:#F59E0B;color:#000;font-size:10px;font-weight:900;padding:1px 5px;border-radius:6px;">👑 Host</span>' : ''}
+              ${room.isProtected ? `<span title="Password Protected" style="display:inline-flex;align-items:center;">${ICONS.lock}</span>` : ''}
+              ${isCreator ? `<span style="background:#F59E0B;color:#000;font-size:10px;font-weight:900;padding:1px 5px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;">${ICONS.crown} Host</span>` : ''}
             </div>
             <div class="room-item-desc">${escapeHtml(room.description || (room.isProtected ? 'Private Room' : 'Public Room'))}</div>
             <div class="room-item-meta">
               <span>Host: @${escapeHtml(room.creator)}</span>
-              <span>•</span>
-              <span>👥 ${count} online</span>
-              ${room.bannedUsers && room.bannedUsers.length > 0 && isCreator ? `<span>•</span><span style="color:#F87171;">🚫 ${room.bannedUsers.length} banned</span>` : ''}
+              <span>-</span>
+              <span style="display:inline-flex;align-items:center;gap:3px;">${ICONS.users} ${count} online</span>
+              ${room.bannedUsers && room.bannedUsers.length > 0 && isCreator ? `<span>-</span><span style="color:#F87171;">${room.bannedUsers.length} banned</span>` : ''}
             </div>
           </div>
           <div class="room-item-actions">
             ${isCurrent ? `
-              <span style="font-size:11px;font-weight:800;color:#38BDF8;padding:5px 10px;">In Room</span>
+              <span style="font-size:11px;font-weight:800;color:var(--accent);padding:5px 10px;">In Room</span>
             ` : `
-              <button class="btn btn-pill" onclick="ChatApp.joinRoom('${room.id}')" style="font-size:11px;">
-                ${room.isProtected && !isCreator && !unlockedRooms.has(room.id) ? 'Unlock 🔒' : 'Enter ▶'}
+              <button class="btn btn-pill" onclick="ChatApp.joinRoom(${JSON.stringify(room.id)})" style="font-size:11px;">
+                ${room.isProtected && !isCreator && !unlockedRooms.has(room.id) ? 'Unlock' : 'Enter'}
               </button>
             `}
             ${isCreator && room.id !== 'lobby' ? `
-              <button class="btn btn-pill" onclick="ChatApp.deleteRoom('${room.id}')" style="color:#EF4444;border-color:#7F1D1D;padding:4px 8px;" title="Delete this room">🗑️</button>
+              <button class="btn btn-pill" onclick="ChatApp.deleteRoom(${JSON.stringify(room.id)})" style="color:#EF4444;border-color:#7F1D1D;padding:4px 8px;" title="Delete this room">${ICONS.trash}</button>
             ` : ''}
           </div>
         </div>
@@ -429,13 +486,13 @@ const ChatApp = (() => {
     }
 
     if (typeof ProfanityFilter !== 'undefined' && (!ProfanityFilter.isClean(roomName) || !ProfanityFilter.isClean(descInput.value))) {
-      alert('⚠️ Room name or description contains disallowed language. Please choose school-safe wording.');
+      alert('Room name or description contains disallowed language.');
       return;
     }
 
     const rooms = getRooms();
     if (rooms.some(r => r.name.toLowerCase() === roomName.toLowerCase())) {
-      alert(`⚠️ A room named #${roomName} already exists. Please choose a different name!`);
+      alert(`A room named #${roomName} already exists. Please choose a different name!`);
       return;
     }
 
@@ -467,7 +524,7 @@ const ChatApp = (() => {
       id: 'sys_' + Date.now(),
       channel: newRoom.id,
       user: 'SYSTEM',
-      text: `✨ Room #${newRoom.name} was created by @${currentUser}.${isProtected ? ' (Password Protected)' : ''}`,
+      text: `Room #${newRoom.name} was created by @${currentUser}.${isProtected ? ' (Password Protected)' : ''}`,
       isSystem: true,
       timestamp: Date.now()
     });
@@ -551,7 +608,7 @@ const ChatApp = (() => {
 
     if (activeList) {
       if (membersArr.length === 0) {
-        activeList.innerHTML = `<div style="color:#64748B;font-size:12px;padding:10px;">No other members online.</div>`;
+        activeList.innerHTML = `<div style="color:var(--text-muted);font-size:12px;padding:10px;">No other members online.</div>`;
       } else {
         activeList.innerHTML = membersArr.map(member => {
           const isMe = currentUser && member.toLowerCase() === currentUser.toLowerCase();
@@ -561,13 +618,13 @@ const ChatApp = (() => {
             <div class="member-item-row">
               <div class="member-item-user">
                 <span>@${escapeHtml(member)}</span>
-                ${isCreator ? '<span style="background:#F59E0B;color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;">👑 HOST</span>' : ''}
-                ${isMe ? '<span style="background:#334155;color:#94A3B8;font-size:9px;padding:1px 5px;border-radius:6px;">YOU</span>' : ''}
+                ${isCreator ? `<span style="background:#F59E0B;color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;display:inline-flex;align-items:center;gap:2px;">${ICONS.crown} HOST</span>` : ''}
+                ${isMe ? '<span style="background:var(--border);color:var(--text-muted);font-size:9px;padding:1px 5px;border-radius:6px;">YOU</span>' : ''}
               </div>
               <div class="member-item-actions">
                 ${isHost && !isMe ? `
-                  <button class="btn-host-action" onclick="ChatApp.kickUser('${escapeHtml(member)}')">👢 Kick</button>
-                  <button class="btn-host-action" onclick="ChatApp.banUser('${escapeHtml(member)}')">🚫 Ban</button>
+                  <button class="btn-host-action" onclick="ChatApp.kickUser(${JSON.stringify(member)})">Kick</button>
+                  <button class="btn-host-action" onclick="ChatApp.banUser(${JSON.stringify(member)})">Ban</button>
                 ` : ''}
               </div>
             </div>
@@ -576,7 +633,7 @@ const ChatApp = (() => {
       }
     }
 
-    // Banned users section (visible to host)
+    // Banned users section
     if (bannedSection && bannedList) {
       if (isHost && room.bannedUsers && room.bannedUsers.length > 0) {
         bannedSection.style.display = 'block';
@@ -586,7 +643,7 @@ const ChatApp = (() => {
               <span>@${escapeHtml(banned)}</span>
               <span style="font-size:9px;background:#7F1D1D;color:#FECDD3;padding:1px 5px;border-radius:6px;">BANNED</span>
             </div>
-            <button class="btn btn-pill" onclick="ChatApp.unbanUser('${escapeHtml(banned)}')" style="font-size:10px;padding:2px 8px;border-color:#F87171;color:#F87171;">
+            <button class="btn btn-pill" onclick="ChatApp.unbanUser(${JSON.stringify(banned)})" style="font-size:10px;padding:2px 8px;border-color:#F87171;color:#F87171;">
               Unban
             </button>
           </div>
@@ -616,7 +673,7 @@ const ChatApp = (() => {
     }
 
     const room = getCurrentRoom();
-    if (!confirm(`👢 Kick @${targetUser} from #${room.name}?\n\nThey will be removed from this room and sent to the Lobby.`)) return;
+    if (!confirm(`Kick @${targetUser} from #${room.name}?\n\nThey will be removed from this room and sent to the Lobby.`)) return;
 
     sendSignal({
       type: 'kick',
@@ -630,7 +687,7 @@ const ChatApp = (() => {
       id: 'sys_' + Date.now(),
       channel: currentRoomId,
       user: 'SYSTEM',
-      text: `⚠️ @${targetUser} was kicked from the room by the host.`,
+      text: `@${targetUser} was kicked from the room by the host.`,
       isSystem: true,
       timestamp: Date.now()
     });
@@ -656,7 +713,7 @@ const ChatApp = (() => {
     const room = rooms.find(r => r.id === currentRoomId);
     if (!room) return;
 
-    if (!confirm(`🚫 Ban @${targetUser} from #${room.name}?\n\nThey will be removed immediately and blocked from ever re-entering this room.`)) return;
+    if (!confirm(`Ban @${targetUser} from #${room.name}?\n\nThey will be removed immediately and blocked from re-entering.`)) return;
 
     if (!room.bannedUsers) room.bannedUsers = [];
     if (!room.bannedUsers.includes(targetUser)) {
@@ -676,7 +733,7 @@ const ChatApp = (() => {
       id: 'sys_' + Date.now(),
       channel: currentRoomId,
       user: 'SYSTEM',
-      text: `🚫 @${targetUser} was permanently banned from the room by the host.`,
+      text: `@${targetUser} was permanently banned from the room by the host.`,
       isSystem: true,
       timestamp: Date.now()
     });
@@ -702,7 +759,7 @@ const ChatApp = (() => {
       id: 'sys_' + Date.now(),
       channel: currentRoomId,
       user: 'SYSTEM',
-      text: `✅ @${targetUser} was unbanned by the host.`,
+      text: `@${targetUser} was unbanned by the host.`,
       isSystem: true,
       timestamp: Date.now()
     });
@@ -767,7 +824,13 @@ const ChatApp = (() => {
     }
   }
 
-  function sendMessage() {
+  async function sendMessage() {
+    const now = Date.now();
+    if (now - lastSentTime < RATE_LIMIT_COOLDOWN_MS) {
+      alert('Please wait a moment before sending another message (rate limit cooldown).');
+      return;
+    }
+
     if (!currentUser) {
       promptForUsername();
       if (!currentUser) return;
@@ -775,14 +838,16 @@ const ChatApp = (() => {
 
     const room = getCurrentRoom();
     if (isUserBannedFromRoom(room, currentUser)) {
-      alert(`🚫 You are banned from #${room.name} and cannot send messages.`);
+      alert(`You are banned from #${room.name} and cannot send messages.`);
       joinRoom('lobby');
       return;
     }
 
     const input = document.getElementById('chat-input-box');
-    const text = input.value.trim();
+    const text = input ? input.value.trim() : '';
     if (!text) return;
+
+    lastSentTime = now;
 
     const cleanedText = typeof ProfanityFilter !== 'undefined' ? ProfanityFilter.clean(text) : text;
 
@@ -790,7 +855,7 @@ const ChatApp = (() => {
     if (typeof AccountManager !== 'undefined') {
       const isAuth = AccountManager.isAuthenticated();
       if (!isAuth && AccountManager.isUsernameRegistered(currentUser)) {
-        alert('🔒 The username "@' + currentUser + '" is registered and password-protected.\n\nPlease click your profile pill in the header to log in, or choose a different nickname.');
+        alert('The username "@' + currentUser + '" is registered and password-protected.\n\nPlease log in, or choose a different nickname.');
         AccountManager.openModal('login');
         return;
       }
@@ -808,8 +873,70 @@ const ChatApp = (() => {
       timestamp: Date.now()
     };
 
+    if (typeof FirebaseService !== 'undefined') {
+      await FirebaseService.sendChatMessage(currentRoomId, {
+        author: currentUser,
+        text: cleanedText,
+        verified: isVerified,
+        timestamp: Date.now()
+      });
+    }
+
     saveMessage(msg);
-    input.value = '';
+    if (input) input.value = '';
+  }
+
+  function createMessageElement(m) {
+    const isHost = isHostOfCurrentRoom();
+    const isMe = currentUser && m.user && m.user.toLowerCase() === currentUser.toLowerCase();
+    const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const avatarSrc = (typeof AccountManager !== 'undefined') ? AccountManager.getAvatarSrc(m.avatar) : 'assets/logo_avatar.gif';
+
+    const div = document.createElement('div');
+    if (m.id) div.setAttribute('data-msg-id', m.id);
+
+    if (m.isSystem) {
+      div.className = 'chat-msg msg-system';
+      div.textContent = m.text;
+      return div;
+    }
+
+    div.className = `chat-msg ${isMe ? 'msg-own' : ''}`;
+    div.innerHTML = `
+      <div class="msg-header">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <img src="${avatarSrc}" class="account-avatar-mini" style="width:18px;height:18px;" alt="Avatar">
+          <span class="msg-user">@${escapeHtml(m.user)}</span>${m.verified ? `<span class="chat-verified-badge" title="Verified Account">${ICONS.check}</span>` : '<span class="guest-badge">Guest</span>'}
+        </div>
+        <span class="msg-time">${timeStr}</span>
+        ${isHost && !isMe ? `
+          <div class="msg-host-actions">
+            <button class="btn-host-action" onclick="ChatApp.kickUser(${JSON.stringify(m.user)})">Kick</button>
+            <button class="btn-host-action" onclick="ChatApp.banUser(${JSON.stringify(m.user)})">Ban</button>
+          </div>
+        ` : ''}
+      </div>
+      <div class="msg-body">${escapeHtml(m.text)}</div>
+    `;
+    return div;
+  }
+
+  function appendSingleMessage(m) {
+    const container = document.getElementById('chat-messages-container');
+    if (!container) return;
+    if (m.channel !== currentRoomId) return;
+
+    const emptyEl = container.querySelector('.chat-empty');
+    if (emptyEl) emptyEl.remove();
+
+    if (m.id && container.querySelector(`[data-msg-id="${m.id}"]`)) return;
+
+    const el = createMessageElement(m);
+    container.appendChild(el);
+
+    requestAnimationFrame(() => {
+      container.scrollTop = container.scrollHeight;
+    });
   }
 
   function renderMessages() {
@@ -817,50 +944,30 @@ const ChatApp = (() => {
     if (!container) return;
 
     const room = getCurrentRoom();
-    const isHost = isHostOfCurrentRoom();
     const msgs = getMessages().filter(m => m.channel === currentRoomId);
 
     if (msgs.length === 0) {
       container.innerHTML = `
-        <div class="chat-empty" style="text-align:center;padding:40px 20px;color:#64748B;">
-          <div style="font-size:36px;margin-bottom:8px;">💬</div>
-          <div style="font-weight:800;font-size:16px;color:#E2E8F0;">#${escapeHtml(room.name)} is quiet...</div>
+        <div class="chat-empty" style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+          <div style="margin-bottom:8px;display:flex;justify-content:center;">${ICONS.message}</div>
+          <div style="font-weight:800;font-size:16px;color:var(--text);">#${escapeHtml(room.name)} is quiet...</div>
           <div style="font-size:12px;margin-top:4px;">Be the first to say hi in this room!</div>
         </div>
       `;
       return;
     }
 
-    container.innerHTML = msgs.map(m => {
-      if (m.isSystem) {
-        return `<div class="chat-msg msg-system">${escapeHtml(m.text)}</div>`;
-      }
+    const fragment = document.createDocumentFragment();
+    msgs.forEach(m => {
+      fragment.appendChild(createMessageElement(m));
+    });
 
-      const isMe = currentUser && m.user.toLowerCase() === currentUser.toLowerCase();
-      const timeStr = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const avatarSrc = (typeof AccountManager !== 'undefined') ? AccountManager.getAvatarSrc(m.avatar) : 'assets/logo_avatar.gif';
+    container.innerHTML = '';
+    container.appendChild(fragment);
 
-      return `
-        <div class="chat-msg ${isMe ? 'msg-own' : ''}">
-          <div class="msg-header">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <img src="${avatarSrc}" class="account-avatar-mini" style="width:18px;height:18px;" alt="Avatar">
-              <span class="msg-user">@${escapeHtml(m.user)}</span>${m.verified ? '<span class="chat-verified-badge" title="Verified Account">✓</span>' : '<span class="guest-badge">Guest</span>'}
-            </div>
-            <span class="msg-time">${timeStr}</span>
-            ${isHost && !isMe ? `
-              <div class="msg-host-actions">
-                <button class="btn-host-action" onclick="ChatApp.kickUser('${escapeHtml(m.user)}')">👢 Kick</button>
-                <button class="btn-host-action" onclick="ChatApp.banUser('${escapeHtml(m.user)}')">🚫 Ban</button>
-              </div>
-            ` : ''}
-          </div>
-          <div class="msg-body">${escapeHtml(m.text)}</div>
-        </div>
-      `;
-    }).join('');
-
-    container.scrollTop = container.scrollHeight;
+    requestAnimationFrame(() => {
+      container.scrollTop = container.scrollHeight;
+    });
   }
 
   function playNotificationSound() {
@@ -878,14 +985,22 @@ const ChatApp = (() => {
     } catch (e) {}
   }
 
+  // Sanitization prevents stored XSS such as &lt;script&gt; or &lt;img src=x onerror=...&gt;
   function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    if (text === null || text === undefined) return '';
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   return {
     init,
+    renderMessages,
+    appendSingleMessage,
+    createMessageElement,
     promptForUsername,
     openBrowseModal,
     openCreateRoomModal,
@@ -899,6 +1014,15 @@ const ChatApp = (() => {
     kickUser,
     banUser,
     unbanUser,
-    deleteRoom
+    deleteRoom,
+    escapeHtml,
+    sendMessage
   };
 })();
+
+if (typeof window !== 'undefined') {
+  window.ChatApp = ChatApp;
+}
+if (typeof module !== 'undefined') {
+  module.exports = ChatApp;
+}

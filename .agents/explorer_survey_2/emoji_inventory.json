@@ -1,0 +1,898 @@
+{
+  "index.html": [
+    {
+      "line": 34,
+      "emojis": [
+        "✓"
+      ],
+      "content": "<span class=\"account-username-text\" id=\"hub-account-name\">Log In</span><span class=\"account-verified-pill-icon\" style=\"color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;\" title=\"Verified Account\">✓</span>"
+    },
+    {
+      "line": 37,
+      "emojis": [
+        "☀"
+      ],
+      "content": "<span class=\"theme-mode-text\">☀️ Light Mode</span>"
+    },
+    {
+      "line": 79,
+      "emojis": [
+        "📖"
+      ],
+      "content": "<button class=\"reader-tab-btn active\" id=\"rtab-reader\" onclick=\"switchReaderTab('reader')\">📖 Reader</button>"
+    },
+    {
+      "line": 80,
+      "emojis": [
+        "🔖"
+      ],
+      "content": "<button class=\"reader-tab-btn\" id=\"rtab-bookmarks\" onclick=\"switchReaderTab('bookmarks')\">🔖 Bookmarks <span id=\"bm-count-badge\"></span></button>"
+    },
+    {
+      "line": 81,
+      "emojis": [
+        "⬇"
+      ],
+      "content": "<button class=\"reader-tab-btn\" id=\"rtab-downloads\" onclick=\"switchReaderTab('downloads')\">⬇️ Downloader</button>"
+    },
+    {
+      "line": 88,
+      "emojis": [
+        "◀"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-prev-ch\">◀ Prev</button>"
+    },
+    {
+      "line": 90,
+      "emojis": [
+        "▶"
+      ],
+      "content": "<button class=\"btn btn-accent\" id=\"btn-next-ch\">Next ▶</button>"
+    },
+    {
+      "line": 92,
+      "emojis": [
+        "🔖"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-bookmark\" title=\"Bookmark current page (Ctrl+B)\">🔖 Bookmark</button>"
+    },
+    {
+      "line": 93,
+      "emojis": [
+        "⬇"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-download-ch\" style=\"border-color:var(--accent);\" title=\"Download chapter\">⬇ Download Ch.</button>"
+    },
+    {
+      "line": 95,
+      "emojis": [
+        "📖"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-mode-toggle\">📖 Single</button>"
+    },
+    {
+      "line": 106,
+      "emojis": [
+        "⛶"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-fullscreen\" style=\"width:30px;padding:3px;\">⛶</button>"
+    },
+    {
+      "line": 113,
+      "emojis": [
+        "✓"
+      ],
+      "content": "<span class=\"account-username-text\">Log In</span><span class=\"account-verified-pill-icon\" style=\"color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;\" title=\"Verified Account\">✓</span>"
+    },
+    {
+      "line": 116,
+      "emojis": [
+        "☀"
+      ],
+      "content": "<span class=\"theme-mode-text\">☀️ Light Mode</span>"
+    },
+    {
+      "line": 139,
+      "emojis": [
+        "←"
+      ],
+      "content": "<div class=\"click-zone left\" id=\"click-zone-left\" title=\"Previous Page (A / ←)\"></div>"
+    },
+    {
+      "line": 140,
+      "emojis": [
+        "→"
+      ],
+      "content": "<div class=\"click-zone right\" id=\"click-zone-right\" title=\"Next Page (Space / D / →)\"></div>"
+    },
+    {
+      "line": 150,
+      "emojis": [
+        "◀"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-page-prev\">◀ Previous</button>"
+    },
+    {
+      "line": 152,
+      "emojis": [
+        "▶"
+      ],
+      "content": "<button class=\"btn btn-accent\" id=\"btn-page-next\">Next ▶</button>"
+    },
+    {
+      "line": 154,
+      "emojis": [
+        "→",
+        "←"
+      ],
+      "content": "<div style=\"font-size:11px;opacity:0.75;\">[Space] or [D/→] Next | [Shift+Space] or [A/←] Prev | [F] Fullscreen</div>"
+    },
+    {
+      "line": 177,
+      "emojis": [
+        "⚡"
+      ],
+      "content": "<div class=\"generator-badge\">⚡ INSTANT PORTABLE APP</div>"
+    },
+    {
+      "line": 185,
+      "emojis": [
+        "📦"
+      ],
+      "content": "📦 Download Standalone Reader (.html)"
+    },
+    {
+      "line": 197,
+      "emojis": [
+        "📁"
+      ],
+      "content": "<button class=\"btn btn-accent\" id=\"btn-choose-dest-folder\">📁 Choose Custom Folder on Computer...</button>"
+    },
+    {
+      "line": 198,
+      "emojis": [
+        "📂"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-open-local-folder\">📂 Open Local Manga Folder (Offline)</button>"
+    },
+    {
+      "line": 216,
+      "emojis": [
+        "⬇"
+      ],
+      "content": "<button class=\"btn btn-accent\" id=\"btn-start-batch-download\" style=\"font-weight:800;\">⬇ Start Batch Download</button>"
+    },
+    {
+      "line": 249,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "<span id=\"chat-room-lock-icon\" style=\"display:none;\" title=\"Password Protected Room\">🔒</span>"
+    },
+    {
+      "line": 250,
+      "emojis": [
+        "👑"
+      ],
+      "content": "<span id=\"chat-room-host-badge\" style=\"display:none;\" title=\"You are the room host!\">👑 Host</span>"
+    },
+    {
+      "line": 258,
+      "emojis": [
+        "👥"
+      ],
+      "content": "👥 <span id=\"chat-members-badge\">1</span>"
+    },
+    {
+      "line": 267,
+      "emojis": [
+        "✏"
+      ],
+      "content": "<span id=\"chat-current-user-badge\">@Username</span> ✏️"
+    },
+    {
+      "line": 270,
+      "emojis": [
+        "☀"
+      ],
+      "content": "<span class=\"theme-mode-text\">☀️ Light Mode</span>"
+    },
+    {
+      "line": 311,
+      "emojis": [
+        "✓"
+      ],
+      "content": "<span class=\"account-username-text\">Log In</span><span class=\"account-verified-pill-icon\" style=\"color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;\" title=\"Verified Account\">✓</span>"
+    },
+    {
+      "line": 314,
+      "emojis": [
+        "☀"
+      ],
+      "content": "<span class=\"theme-mode-text\">☀️ Light Mode</span>"
+    },
+    {
+      "line": 349,
+      "emojis": [
+        "←"
+      ],
+      "content": "<button class=\"btn\" id=\"forum-back-catalog-btn\">[ ← Return to Catalog ]</button>"
+    },
+    {
+      "line": 373,
+      "emojis": [
+        "✓"
+      ],
+      "content": "<span class=\"account-username-text\">Log In</span><span class=\"account-verified-pill-icon\" style=\"color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;\" title=\"Verified Account\">✓</span>"
+    },
+    {
+      "line": 376,
+      "emojis": [
+        "☀"
+      ],
+      "content": "<span class=\"theme-mode-text\">☀️ Light Mode</span>"
+    },
+    {
+      "line": 390,
+      "emojis": [
+        "✕"
+      ],
+      "content": "<button style=\"background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;\" onclick=\"closeDownloadModal()\">✕</button>"
+    },
+    {
+      "line": 396,
+      "emojis": [
+        "📦"
+      ],
+      "content": "<div style=\"font-weight:700;font-size:13px;\">📦 Download as ZIP Archive (.zip)</div>"
+    },
+    {
+      "line": 401,
+      "emojis": [
+        "📁"
+      ],
+      "content": "<div style=\"font-weight:700;font-size:13px;\">📁 Save Directly to Folder on Computer</div>"
+    },
+    {
+      "line": 406,
+      "emojis": [
+        "💾"
+      ],
+      "content": "<div style=\"font-weight:700;font-size:13px;\">💾 Save to Browser Offline Storage</div>"
+    },
+    {
+      "line": 419,
+      "emojis": [
+        "💬"
+      ],
+      "content": "<div style=\"font-size:22px;\">💬</div>"
+    },
+    {
+      "line": 425,
+      "emojis": [
+        "✕"
+      ],
+      "content": "<button class=\"modal-close-btn\" onclick=\"ChatApp.closeModals()\">✕</button>"
+    },
+    {
+      "line": 445,
+      "emojis": [
+        "✨"
+      ],
+      "content": "<div style=\"font-weight:800;font-size:17px;color:#FFF;\">✨ Create a Chat Room</div>"
+    },
+    {
+      "line": 446,
+      "emojis": [
+        "✕"
+      ],
+      "content": "<button class=\"modal-close-btn\" onclick=\"ChatApp.closeModals()\">✕</button>"
+    },
+    {
+      "line": 464,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "<span>🔒</span> Password Protect Room"
+    },
+    {
+      "line": 477,
+      "emojis": [
+        "🚀"
+      ],
+      "content": "<button type=\"submit\" class=\"btn btn-accent\" style=\"background:#0284C7;border-color:#38BDF8;font-weight:800;\">Create & Enter 🚀</button>"
+    },
+    {
+      "line": 491,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "<span>🔒</span> Private Room"
+    },
+    {
+      "line": 493,
+      "emojis": [
+        "✕"
+      ],
+      "content": "<button class=\"modal-close-btn\" onclick=\"ChatApp.closeModals()\">✕</button>"
+    },
+    {
+      "line": 503,
+      "emojis": [
+        "🔓"
+      ],
+      "content": "<button type=\"submit\" class=\"btn btn-accent\" style=\"background:#0284C7;border-color:#38BDF8;font-weight:800;\">Unlock & Join 🔓</button>"
+    },
+    {
+      "line": 517,
+      "emojis": [
+        "👥"
+      ],
+      "content": "<span>👥</span> <span id=\"chat-members-modal-title\">#Lobby Members</span>"
+    },
+    {
+      "line": 521,
+      "emojis": [
+        "✕"
+      ],
+      "content": "<button class=\"modal-close-btn\" onclick=\"ChatApp.closeModals()\">✕</button>"
+    },
+    {
+      "line": 553,
+      "emojis": [
+        "✕"
+      ],
+      "content": "<button class=\"modal-close-btn\" onclick=\"AccountManager.closeModal()\">✕</button>"
+    },
+    {
+      "line": 561,
+      "emojis": [
+        "🔑"
+      ],
+      "content": "<button class=\"acc-tab-btn acc-tab-logged-out active\" id=\"acc-tab-btn-login\" onclick=\"AccountManager.switchModalTab('login')\">🔑 Log In</button>"
+    },
+    {
+      "line": 562,
+      "emojis": [
+        "✨"
+      ],
+      "content": "<button class=\"acc-tab-btn acc-tab-logged-out\" id=\"acc-tab-btn-signup\" onclick=\"AccountManager.switchModalTab('signup')\">✨ Sign Up</button>"
+    },
+    {
+      "line": 563,
+      "emojis": [
+        "👤"
+      ],
+      "content": "<button class=\"acc-tab-btn acc-tab-logged-in\" id=\"acc-tab-btn-profile\" onclick=\"AccountManager.switchModalTab('profile')\">👤 My Profile</button>"
+    },
+    {
+      "line": 564,
+      "emojis": [
+        "🔄"
+      ],
+      "content": "<button class=\"acc-tab-btn\" id=\"acc-tab-btn-sync\" onclick=\"AccountManager.switchModalTab('sync')\">🔄 Cloud Sync</button>"
+    },
+    {
+      "line": 565,
+      "emojis": [
+        "👥"
+      ],
+      "content": "<button class=\"acc-tab-btn\" id=\"acc-tab-btn-switch\" onclick=\"AccountManager.switchModalTab('switch')\">👥 Accounts</button>"
+    },
+    {
+      "line": 582,
+      "emojis": [
+        "🔑"
+      ],
+      "content": "<button type=\"submit\" class=\"btn btn-accent\" style=\"font-weight:800;padding:8px 22px;\">Log In 🔑</button>"
+    },
+    {
+      "line": 592,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "🔒 <strong>Strict Uniqueness:</strong> Your username is protected with your password. No other user can claim or send messages with your name."
+    },
+    {
+      "line": 618,
+      "emojis": [
+        "✓"
+      ],
+      "content": "<button type=\"submit\" class=\"btn btn-accent\" style=\"font-weight:800;padding:8px 22px;\">Create Account & Claim Name ✓</button>"
+    },
+    {
+      "line": 639,
+      "emojis": [
+        "✓"
+      ],
+      "content": "<button class=\"btn btn-accent\" onclick=\"AccountManager.saveProfileFromForm()\" style=\"font-weight:800;padding:8px 20px;\">Save Profile ✓</button>"
+    },
+    {
+      "line": 666,
+      "emojis": [
+        "📖"
+      ],
+      "content": "<div class=\"sync-stat-pill\">📖 Bookmarks: <strong id=\"sync-stat-bookmarks\">0</strong></div>"
+    },
+    {
+      "line": 667,
+      "emojis": [
+        "🔖"
+      ],
+      "content": "<div class=\"sync-stat-pill\">🔖 Last Read: <strong id=\"sync-stat-lastread\">None</strong></div>"
+    },
+    {
+      "line": 668,
+      "emojis": [
+        "📝"
+      ],
+      "content": "<div class=\"sync-stat-pill\">📝 Scratchpad: <strong id=\"sync-stat-notes\">Empty</strong></div>"
+    },
+    {
+      "line": 676,
+      "emojis": [
+        "💾"
+      ],
+      "content": "<button class=\"btn btn-pill btn-accent\" onclick=\"AccountManager.downloadAccountBackup()\">💾 Export Account (.json)</button>"
+    },
+    {
+      "line": 677,
+      "emojis": [
+        "📋"
+      ],
+      "content": "<button class=\"btn btn-pill\" onclick=\"AccountManager.copySyncCodeToClipboard()\">📋 Copy 1-Click Sync Code</button>"
+    },
+    {
+      "line": 686,
+      "emojis": [
+        "📂"
+      ],
+      "content": "<button class=\"btn btn-pill\" onclick=\"document.getElementById('acc-import-file-input').click()\">📂 Upload .json Backup</button>"
+    }
+  ],
+  "theme.js": [
+    {
+      "line": 67,
+      "emojis": [
+        "🌙",
+        "☀"
+      ],
+      "content": "el.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';"
+    }
+  ],
+  "app.js": [
+    {
+      "line": 382,
+      "emojis": [
+        "📜",
+        "📖"
+      ],
+      "content": "document.getElementById('btn-mode-toggle').textContent = isContinuous ? '📜 Continuous' : '📖 Single';"
+    },
+    {
+      "line": 440,
+      "emojis": [
+        "🔖"
+      ],
+      "content": "alert(`🔖 Bookmarked ${currentChapter.title} - Page ${currentPageIndex + 1}!`);"
+    },
+    {
+      "line": 462,
+      "emojis": [
+        "▶"
+      ],
+      "content": "<button class=\"btn btn-accent\" style=\"flex:1;\" onclick=\"resumeBookmark(${b.chapterNumber}, ${b.pageIndex})\">Resume ▶</button>"
+    },
+    {
+      "line": 463,
+      "emojis": [
+        "🗑"
+      ],
+      "content": "<button class=\"btn\" style=\"color:#FF6B6B;\" onclick=\"deleteBookmark(${idx})\">🗑️ Delete</button>"
+    },
+    {
+      "line": 775,
+      "emojis": [
+        "◀"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-prev-ch\">◀ Prev Ch</button>"
+    },
+    {
+      "line": 777,
+      "emojis": [
+        "▶"
+      ],
+      "content": "<button class=\"btn btn-accent\" id=\"btn-next-ch\">Next Ch ▶</button>"
+    },
+    {
+      "line": 778,
+      "emojis": [
+        "📖"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-mode-toggle\">📖 Single</button>"
+    },
+    {
+      "line": 782,
+      "emojis": [
+        "⛶"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-fullscreen\">⛶ Fullscreen</button>"
+    },
+    {
+      "line": 804,
+      "emojis": [
+        "◀"
+      ],
+      "content": "<button class=\"btn\" id=\"btn-p-prev\">◀ Prev Page</button>"
+    },
+    {
+      "line": 806,
+      "emojis": [
+        "▶"
+      ],
+      "content": "<button class=\"btn btn-accent\" id=\"btn-p-next\">Next Page ▶</button>"
+    },
+    {
+      "line": 808,
+      "emojis": [
+        "→",
+        "←"
+      ],
+      "content": "<div style=\"color:var(--text-muted);\">[Space / D / →] Next · [A / ←] Prev · [F] Fullscreen</div>"
+    },
+    {
+      "line": 948,
+      "emojis": [
+        "📜",
+        "📖"
+      ],
+      "content": "document.getElementById('btn-mode-toggle').textContent = isContinuous ? '📜 Continuous' : '📖 Single';"
+    },
+    {
+      "line": 972,
+      "emojis": [
+        "🎉"
+      ],
+      "content": "alert('🎉 Standalone JJK Reader (.html) generated!\\nYou can open this file in any browser on any OS or Chromebook.');"
+    }
+  ],
+  "chat.js": [
+    {
+      "line": 167,
+      "emojis": [
+        "⚠"
+      ],
+      "content": "alert(`⚠️ You were kicked from #${data.roomName} by the host.`);"
+    },
+    {
+      "line": 172,
+      "emojis": [
+        "🚫"
+      ],
+      "content": "alert(`🚫 You have been banned from #${data.roomName} by the host.`);"
+    },
+    {
+      "line": 177,
+      "emojis": [
+        "ℹ"
+      ],
+      "content": "alert(`ℹ️ The room #${data.roomName} was closed by the host. Returning to Lobby.`);"
+    },
+    {
+      "line": 235,
+      "emojis": [
+        "⚠"
+      ],
+      "content": "alert('⚠️ Username contains disallowed language. Please choose a school-safe username.');"
+    },
+    {
+      "line": 293,
+      "emojis": [
+        "🚫"
+      ],
+      "content": "alert(`🚫 You are banned from #${targetRoom.name} by the host.`);"
+    },
+    {
+      "line": 355,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "${room.isProtected ? '<span title=\"Password Protected\" style=\"font-size:12px;\">🔒</span>' : ''}"
+    },
+    {
+      "line": 356,
+      "emojis": [
+        "👑"
+      ],
+      "content": "${isCreator ? '<span style=\"background:#F59E0B;color:#000;font-size:10px;font-weight:900;padding:1px 5px;border-radius:6px;\">👑 Host</span>' : ''}"
+    },
+    {
+      "line": 362,
+      "emojis": [
+        "👥"
+      ],
+      "content": "<span>👥 ${count} online</span>"
+    },
+    {
+      "line": 363,
+      "emojis": [
+        "🚫"
+      ],
+      "content": "${room.bannedUsers && room.bannedUsers.length > 0 && isCreator ? `<span>•</span><span style=\"color:#F87171;\">🚫 ${room.bannedUsers.length} banned</span>` : ''}"
+    },
+    {
+      "line": 371,
+      "emojis": [
+        "🔒",
+        "▶"
+      ],
+      "content": "${room.isProtected && !isCreator && !unlockedRooms.has(room.id) ? 'Unlock 🔒' : 'Enter ▶'}"
+    },
+    {
+      "line": 375,
+      "emojis": [
+        "🗑"
+      ],
+      "content": "<button class=\"btn btn-pill\" onclick=\"ChatApp.deleteRoom('${room.id}')\" style=\"color:#EF4444;border-color:#7F1D1D;padding:4px 8px;\" title=\"Delete this room\">🗑️</button>"
+    },
+    {
+      "line": 432,
+      "emojis": [
+        "⚠"
+      ],
+      "content": "alert('⚠️ Room name or description contains disallowed language. Please choose school-safe wording.');"
+    },
+    {
+      "line": 438,
+      "emojis": [
+        "⚠"
+      ],
+      "content": "alert(`⚠️ A room named #${roomName} already exists. Please choose a different name!`);"
+    },
+    {
+      "line": 470,
+      "emojis": [
+        "✨"
+      ],
+      "content": "text: `✨ Room #${newRoom.name} was created by @${currentUser}.${isProtected ? ' (Password Protected)' : ''}`,"
+    },
+    {
+      "line": 564,
+      "emojis": [
+        "👑"
+      ],
+      "content": "${isCreator ? '<span style=\"background:#F59E0B;color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;\">👑 HOST</span>' : ''}"
+    },
+    {
+      "line": 569,
+      "emojis": [
+        "👢"
+      ],
+      "content": "<button class=\"btn-host-action\" onclick=\"ChatApp.kickUser('${escapeHtml(member)}')\">👢 Kick</button>"
+    },
+    {
+      "line": 570,
+      "emojis": [
+        "🚫"
+      ],
+      "content": "<button class=\"btn-host-action\" onclick=\"ChatApp.banUser('${escapeHtml(member)}')\">🚫 Ban</button>"
+    },
+    {
+      "line": 619,
+      "emojis": [
+        "👢"
+      ],
+      "content": "if (!confirm(`👢 Kick @${targetUser} from #${room.name}?\\n\\nThey will be removed from this room and sent to the Lobby.`)) return;"
+    },
+    {
+      "line": 633,
+      "emojis": [
+        "⚠"
+      ],
+      "content": "text: `⚠️ @${targetUser} was kicked from the room by the host.`,"
+    },
+    {
+      "line": 659,
+      "emojis": [
+        "🚫"
+      ],
+      "content": "if (!confirm(`🚫 Ban @${targetUser} from #${room.name}?\\n\\nThey will be removed immediately and blocked from ever re-entering this room.`)) return;"
+    },
+    {
+      "line": 679,
+      "emojis": [
+        "🚫"
+      ],
+      "content": "text: `🚫 @${targetUser} was permanently banned from the room by the host.`,"
+    },
+    {
+      "line": 705,
+      "emojis": [
+        "✅"
+      ],
+      "content": "text: `✅ @${targetUser} was unbanned by the host.`,"
+    },
+    {
+      "line": 778,
+      "emojis": [
+        "🚫"
+      ],
+      "content": "alert(`🚫 You are banned from #${room.name} and cannot send messages.`);"
+    },
+    {
+      "line": 793,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "alert('🔒 The username \"@' + currentUser + '\" is registered and password-protected.\\n\\nPlease click your profile pill in the header to log in, or choose a different nickname.');"
+    },
+    {
+      "line": 826,
+      "emojis": [
+        "💬"
+      ],
+      "content": "<div style=\"font-size:36px;margin-bottom:8px;\">💬</div>"
+    },
+    {
+      "line": 848,
+      "emojis": [
+        "✓"
+      ],
+      "content": "<span class=\"msg-user\">@${escapeHtml(m.user)}</span>${m.verified ? '<span class=\"chat-verified-badge\" title=\"Verified Account\">✓</span>' : '<span class=\"guest-badge\">Guest</span>'}"
+    },
+    {
+      "line": 853,
+      "emojis": [
+        "👢"
+      ],
+      "content": "<button class=\"btn-host-action\" onclick=\"ChatApp.kickUser('${escapeHtml(m.user)}')\">👢 Kick</button>"
+    },
+    {
+      "line": 854,
+      "emojis": [
+        "🚫"
+      ],
+      "content": "<button class=\"btn-host-action\" onclick=\"ChatApp.banUser('${escapeHtml(m.user)}')\">🚫 Ban</button>"
+    }
+  ],
+  "forum.js": [
+    {
+      "line": 139,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "alert('🔒 The username \"' + name + '\" is registered and protected by password.\\n\\nPlease log in with your password to author posts under this name, or choose a different name.');"
+    },
+    {
+      "line": 147,
+      "emojis": [
+        "⚠"
+      ],
+      "content": "alert('⚠️ Author name contains disallowed words. Please choose a clean name.');"
+    },
+    {
+      "line": 205,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "alert('🔒 The username \"' + name + '\" is registered and protected by password.\\n\\nPlease log in with your password to post replies under this name, or choose a different name.');"
+    },
+    {
+      "line": 212,
+      "emojis": [
+        "⚠"
+      ],
+      "content": "alert('⚠️ Name contains disallowed words.');"
+    },
+    {
+      "line": 298,
+      "emojis": [
+        "✓"
+      ],
+      "content": "${t.verified ? '<span class=\"forum-verified-badge\" title=\"Verified Account\">✓</span>' : '<span class=\"guest-badge\">Guest</span>'}"
+    },
+    {
+      "line": 329,
+      "emojis": [
+        "✓"
+      ],
+      "content": "${r.verified ? '<span class=\"forum-verified-badge\" title=\"Verified Account\">✓</span>' : '<span class=\"guest-badge\">Guest</span>'}"
+    },
+    {
+      "line": 348,
+      "emojis": [
+        "✓"
+      ],
+      "content": "${thread.verified ? '<span class=\"forum-verified-badge\" title=\"Verified Account\">✓</span>' : '<span class=\"guest-badge\">Guest</span>'}"
+    }
+  ],
+  "account.js": [
+    {
+      "line": 655,
+      "emojis": [
+        "✓"
+      ],
+      "content": "? `${handle} <span style=\"color:#10B981;font-weight:900;\" title=\"Verified Account\">✓</span>`"
+    },
+    {
+      "line": 706,
+      "emojis": [
+        "✓"
+      ],
+      "content": "<span style=\"background:#10B981;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;\">✓</span>"
+    },
+    {
+      "line": 836,
+      "emojis": [
+        "✓"
+      ],
+      "content": "alert(`✓ Account created! Welcome, @${res.account.username}! Your username is now protected with your password.`);"
+    },
+    {
+      "line": 872,
+      "emojis": [
+        "✓"
+      ],
+      "content": "alert('✓ Password updated successfully!');"
+    },
+    {
+      "line": 908,
+      "emojis": [
+        "🔒"
+      ],
+      "content": "<span style=\"color:#10B981;font-weight:900;font-size:11px;\" title=\"Registered & Protected\">🔒</span>"
+    },
+    {
+      "line": 912,
+      "emojis": [
+        "📖",
+        "📝"
+      ],
+      "content": "📖 ${bCount} bookmarks · 📝 ${hasNotes ? 'Notes saved' : 'No notes'}"
+    },
+    {
+      "line": 918,
+      "emojis": [
+        "✕"
+      ],
+      "content": "<button class=\"btn btn-pill\" onclick=\"AccountManager.promptDeleteAccount('${a.id}', '@${a.username}')\" style=\"color:#EF4444;padding:4px 8px;font-size:12px;\" title=\"Delete Account\">✕</button>"
+    },
+    {
+      "line": 930,
+      "emojis": [
+        "✓"
+      ],
+      "content": "alert(`✓ Logged in as ${username}!`);"
+    },
+    {
+      "line": 943,
+      "emojis": [
+        "✓"
+      ],
+      "content": "alert(`✓ Deleted account ${username}.`);"
+    },
+    {
+      "line": 982,
+      "emojis": [
+        "✓"
+      ],
+      "content": "alert(`✓ Successfully restored account @${res.username}!`);"
+    },
+    {
+      "line": 1002,
+      "emojis": [
+        "✓"
+      ],
+      "content": "alert(`✓ Successfully restored account @${res.username}!`);"
+    },
+    {
+      "line": 1018,
+      "emojis": [
+        "✓"
+      ],
+      "content": "alert('✓ Sync code copied to clipboard! Paste it on your other computer or Chromebook.');"
+    }
+  ],
+  "apps.js": [],
+  "style.css": []
+}

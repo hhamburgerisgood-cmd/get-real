@@ -1544,3 +1544,53 @@ input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:f
   border-radius: 6px;
   margin-left: 4px;
 }
+
+/* ========================================================
+   UNIVERSAL HEADER ACTIONS & FALLBACK BANNER
+   ======================================================== */
+.header-actions-universal {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.header-actions-universal .btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.header-actions-universal .btn-pill:hover {
+  border-color: var(--accent);
+  background: var(--surface-muted);
+}
+
+.firebase-fallback-banner {
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 6px 16px;
+  text-align: center;
+}
+
+blockquote {
+  margin: 6px 0;
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
+  color: var(--text-muted);
+  font-style: italic;
+}
+

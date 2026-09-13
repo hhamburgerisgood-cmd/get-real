@@ -21,6 +21,7 @@
   <script src="account.js"></script>
 </head>
 <body>
+  <div id="firebase-fallback-banner" class="firebase-fallback-banner" style="display:none;">Offline Mode: Running on local storage.</div>
 
   <!-- ========================================================
        VIEW 0: NEAL.FUN HOMEPAGE HUB
@@ -28,15 +29,17 @@
   <div class="app-view active" id="view-hub" style="overflow-y:auto;">
     <header class="hub-header">
       <div class="hub-top-bar">
-        <div class="hub-theme-tools" style="display:inline-flex;align-items:center;gap:8px;">
-          <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Cloud Sync">
-            <img src="assets/logo_avatar.gif" class="account-avatar-mini" id="hub-account-avatar" alt="Avatar">
-            <span class="account-username-text" id="hub-account-name">Log In</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
-          </button>
-          <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
-            <span class="theme-mode-text">☀️ Light Mode</span>
-          </button>
-        </div>
+        <div class="header-actions-universal">
+        <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
+          <img src="assets/logo_avatar.gif" class="account-avatar-mini" id="hub-account-avatar" alt="Avatar">
+          <span class="account-username-text" id="hub-account-name">Log In</span>
+          <span class="account-verified-pill-icon" style="color:#10B981;display:none;margin-left:3px;" title="Verified Account"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+        </button>
+        <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
+          <span class="theme-icon-slot"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></span>
+          <span class="theme-mode-text">Light Mode</span>
+        </button>
+      </div>
       </div>
       <div class="hub-title" onclick="switchMainView('hub')">
         GET
@@ -45,19 +48,14 @@
         </span>
         REAL
       </div>
-      <div class="hub-subtitle">manga, chat, forum and stuff for school & beyond</div>
+      <div class="hub-subtitle">manga, chat, and community</div>
     </header>
 
     <div class="hub-container">
       <div class="hub-grid" id="hub-cards-grid">
         <!-- Rendered dynamically from apps.js -->
       </div>
-      <footer class="hub-footer">
-        <div class="hub-footer-content">
-          <img src="assets/logo_cat.gif" class="hub-footer-cat" alt="Get Real Cat">
-          <span>GET REAL · Powered by Elgatitolover GIFs · ChromeOS Ready</span>
-        </div>
-      </footer>
+      
     </div>
   </div>
 
@@ -67,8 +65,8 @@
   <div class="app-view" id="view-reader">
     <header class="reader-header">
       <div class="reader-header-left">
-        <button class="back-to-hub-btn" onclick="switchMainView('hub')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <button class="back-to-hub-btn" onclick="switchMainView('hub')" title="Return to Hub">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Hub
         </button>
         <img src="assets/logo_avatar.gif" class="header-cat-badge" alt="Cat Logo">
@@ -76,23 +74,23 @@
 
         <!-- Reader Tabs locked inside left container -->
         <div class="reader-tab-nav">
-          <button class="reader-tab-btn active" id="rtab-reader" onclick="switchReaderTab('reader')">📖 Reader</button>
-          <button class="reader-tab-btn" id="rtab-bookmarks" onclick="switchReaderTab('bookmarks')">🔖 Bookmarks <span id="bm-count-badge"></span></button>
-          <button class="reader-tab-btn" id="rtab-downloads" onclick="switchReaderTab('downloads')">⬇️ Downloader</button>
+          <button class="reader-tab-btn active" id="rtab-reader" onclick="switchReaderTab('reader')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Reader</button>
+          <button class="reader-tab-btn" id="rtab-bookmarks" onclick="switchReaderTab('bookmarks')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Bookmarks <span id="bm-count-badge"></span></button>
+          <button class="reader-tab-btn" id="rtab-downloads" onclick="switchReaderTab('downloads')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Downloader</button>
         </div>
       </div>
 
       <div class="reader-header-right">
         <!-- Reader Top Bar Controls -->
         <div id="reader-top-controls" style="display:flex;align-items:center;gap:6px;">
-          <button class="btn" id="btn-prev-ch">◀ Prev</button>
+          <button class="btn" id="btn-prev-ch"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg> Prev</button>
           <select id="header-ch-select" class="btn" style="max-width:200px;"></select>
-          <button class="btn btn-accent" id="btn-next-ch">Next ▶</button>
+          <button class="btn btn-accent" id="btn-next-ch">Next <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           <div class="separator"></div>
-          <button class="btn" id="btn-bookmark" title="Bookmark current page (Ctrl+B)">🔖 Bookmark</button>
-          <button class="btn" id="btn-download-ch" style="border-color:var(--accent);" title="Download chapter">⬇ Download Ch.</button>
+          <button class="btn" id="btn-bookmark" title="Bookmark current page (Ctrl+B)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Bookmark</button>
+          <button class="btn" id="btn-download-ch" style="border-color:var(--accent);" title="Download chapter"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download Ch.</button>
           <div class="separator"></div>
-          <button class="btn" id="btn-mode-toggle">📖 Single</button>
+          <button class="btn" id="btn-mode-toggle"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Single</button>
         </div>
 
         <!-- Zoom & Fullscreen -->
@@ -103,19 +101,21 @@
           <button class="btn" id="btn-zoom-out" style="width:26px;padding:3px;">−</button>
           <span id="zoom-text" style="font-size:11px;color:var(--text-muted);min-width:34px;text-align:center;">100%</span>
           <button class="btn" id="btn-zoom-in" style="width:26px;padding:3px;">+</button>
-          <button class="btn" id="btn-fullscreen" style="width:30px;padding:3px;">⛶</button>
+          <button class="btn" id="btn-fullscreen" style="width:30px;padding:3px;" title="Toggle Fullscreen"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button>
         </div>
 
         <!-- Account & Theme Mode -->
-        <div class="reader-theme-tools" style="display:flex;align-items:center;gap:6px;">
-          <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Cloud Sync">
-            <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-            <span class="account-username-text">Log In</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
-          </button>
-          <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
-            <span class="theme-mode-text">☀️ Light Mode</span>
-          </button>
-        </div>
+        <div class="header-actions-universal">
+        <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
+          <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
+          <span class="account-username-text">Log In</span>
+          <span class="account-verified-pill-icon" style="color:#10B981;display:none;margin-left:3px;" title="Verified Account"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+        </button>
+        <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
+          <span class="theme-icon-slot"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></span>
+          <span class="theme-mode-text">Light Mode</span>
+        </button>
+      </div>
       </div>
     </header>
 
@@ -123,12 +123,12 @@
       <!-- SUBVIEW 1: READER CANVAS -->
       <div class="reader-subview active" id="rsub-reader">
         <aside class="reader-sidebar">
-          <div style="padding:10px 12px;border-bottom:1px solid #242836;display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:11px;font-weight:700;color:#8B94A7;">CHAPTERS</span>
+          <div style="padding:10px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:11px;font-weight:700;color:var(--text-muted);">CHAPTERS</span>
             <button class="btn btn-pill" id="btn-cycle-sort" style="font-size:10px;">Sort: # Asc</button>
           </div>
           <div style="padding:8px 12px;">
-            <input type="text" id="search-input" placeholder="Search chapters..." style="width:100%;background:#0D0E13;border:1px solid #242836;color:#FFF;padding:6px 10px;border-radius:6px;" />
+            <input type="text" id="search-input" placeholder="Search chapters..." style="width:100%;background:var(--surface-muted);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;" />
           </div>
           <div class="chapter-list" id="chapter-list" style="flex:1;overflow-y:auto;padding:6px;"></div>
         </aside>
@@ -141,11 +141,11 @@
               <img id="current-page-img" src="" alt="Manga Page" />
             </div>
             <div class="continuous-wrapper" id="continuous-wrapper"></div>
-            <div id="reader-loader" style="display:none;position:absolute;background:rgba(10,11,14,0.9);padding:12px 20px;border-radius:8px;border:1px solid #334155;color:#E2E8F0;font-weight:600;">Loading pages...</div>
+            <div id="reader-loader" style="display:none;position:absolute;background:rgba(10,11,14,0.9);padding:12px 20px;border-radius:8px;border:1px solid var(--border);color:var(--text);font-weight:600;">Loading pages...</div>
           </div>
 
           <footer class="reader-footer">
-            <div id="status-ch-title" style="font-weight:700;color:#FFF;">Ready</div>
+            <div id="status-ch-title" style="font-weight:700;color:var(--text);">Ready</div>
             <div id="single-page-controls" style="display:flex;align-items:center;gap:8px;">
               <button class="btn" id="btn-page-prev">◀ Previous</button>
               <span class="page-badge" id="page-counter-badge">Page 1 of 1</span>
@@ -161,12 +161,12 @@
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div>
             <h2 style="font-size:18px;font-weight:800;">SAVED BOOKMARKS</h2>
-            <p style="color:#8B94A7;font-size:12px;">Saved points from your reading sessions on this device.</p>
+            <p style="color:var(--text-muted);font-size:12px;">Saved points from your reading sessions on this device.</p>
           </div>
           <button class="btn" id="btn-clear-bookmarks" style="color:#FF6B6B;">Clear All</button>
         </div>
         <div class="bookmarks-grid" id="bookmarks-grid"></div>
-        <div id="bookmarks-empty" style="display:none;text-align:center;padding:40px;color:#8B94A7;">No bookmarks saved. Press <strong>Ctrl + B</strong> while reading to add one!</div>
+        <div id="bookmarks-empty" style="display:none;text-align:center;padding:40px;color:var(--text-muted);">No bookmarks saved. Press <strong>Ctrl + B</strong> while reading to add one!</div>
       </div>
 
       <!-- SUBVIEW 3: DOWNLOADER -->
@@ -174,16 +174,14 @@
         <!-- STANDALONE PORTABLE JJK READER GENERATOR -->
         <div class="downloads-generator-card">
           <div class="generator-card-left">
-            <div class="generator-badge">⚡ INSTANT PORTABLE APP</div>
+            <div class="generator-badge">INSTANT PORTABLE APP</div>
             <h3 class="generator-title">Generate Standalone JJK Reader (.html)</h3>
             <p class="generator-desc">
               Download a 100% self-contained single-file HTML version containing all 272 chapters that works offline or online on any device with a browser (ChromeOS / Chromebook, Windows, Mac, Linux, Android, iOS) without any server or installation needed!
             </p>
           </div>
           <div class="generator-card-right">
-            <button class="btn btn-accent generator-dl-btn" id="btn-generate-standalone-reader" onclick="generatePortableReaderHtml()">
-              📦 Download Standalone Reader (.html)
-            </button>
+            <button class="btn btn-accent generator-dl-btn" id="btn-generate-standalone-reader"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download Standalone Reader (.html)</button>
             <div class="generator-note">Includes all 272 chapters · Direct CDN images · Zero setup</div>
           </div>
         </div>
@@ -194,26 +192,26 @@
             <div style="margin-top:4px;color:var(--accent);font-weight:700;" id="custom-folder-display">Browser Downloads / Prompts</div>
           </div>
           <div style="display:flex;gap:10px;">
-            <button class="btn btn-accent" id="btn-choose-dest-folder">📁 Choose Custom Folder on Computer...</button>
-            <button class="btn" id="btn-open-local-folder">📂 Open Local Manga Folder (Offline)</button>
+            <button class="btn btn-accent" id="btn-choose-dest-folder"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Choose Custom Folder on Computer...</button>
+            <button class="btn" id="btn-open-local-folder"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Open Local Manga Folder (Offline)</button>
             <input type="file" id="local-folder-picker" webkitdirectory directory multiple style="display:none;" />
           </div>
         </div>
 
         <div class="downloads-table-card">
-          <div style="padding:12px 18px;border-bottom:1px solid #242836;display:flex;justify-content:space-between;align-items:center;background:#141722;">
+          <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--surface);">
             <div style="display:flex;gap:8px;align-items:center;">
               <button class="btn" id="btn-dl-select-all">Select All</button>
               <button class="btn" id="btn-dl-deselect-all">Deselect All</button>
-              <span style="font-size:12px;color:#8B94A7;margin-left:8px;" id="dl-selected-count">0 chapters selected</span>
+              <span style="font-size:12px;color:var(--text-muted);margin-left:8px;" id="dl-selected-count">0 chapters selected</span>
             </div>
             <div style="display:flex;gap:10px;align-items:center;">
-              <select id="dl-format-select" class="btn" style="background:#1C1F28;">
+              <select id="dl-format-select" class="btn" style="background:var(--surface-muted);">
                 <option value="zip">Download as ZIP (.zip)</option>
                 <option value="files">Save into Custom Folder</option>
                 <option value="offline_cache">Save to Browser Storage</option>
               </select>
-              <button class="btn btn-accent" id="btn-start-batch-download" style="font-weight:800;">⬇ Start Batch Download</button>
+              <button class="btn btn-accent" id="btn-start-batch-download" style="font-weight:800;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Start Batch Download</button>
             </div>
           </div>
           <div class="downloads-list" id="downloads-list" style="overflow-y:auto;max-height:450px;"></div>
@@ -228,8 +226,8 @@
   <div class="app-view" id="view-chat">
     <header class="chat-app-header">
       <div style="display:flex;align-items:center;gap:12px;">
-        <button class="back-to-hub-btn" onclick="switchMainView('hub')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <button class="back-to-hub-btn" onclick="switchMainView('hub')" title="Return to Hub">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Hub
         </button>
         <img src="assets/logo_avatar.gif" class="header-cat-badge" alt="Cat Logo">
@@ -239,35 +237,40 @@
       <!-- Room Navigation Bar -->
       <div class="chat-room-nav-bar">
         <button class="btn btn-pill chat-room-btn" id="chat-btn-browse-rooms" onclick="ChatApp.openBrowseModal()" title="Browse and join rooms">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
           Rooms <span class="room-count-badge" id="chat-rooms-badge">2</span>
         </button>
 
         <div class="chat-current-room-pill" id="chat-current-room-pill" onclick="ChatApp.openMembersModal()" title="View room members & host controls">
           <span class="room-hash">#</span>
           <span id="chat-room-name-text">Lobby</span>
-          <span id="chat-room-lock-icon" style="display:none;" title="Password Protected Room">🔒</span>
-          <span id="chat-room-host-badge" style="display:none;" title="You are the room host!">👑 Host</span>
+          <span id="chat-room-lock-icon" style="display:none;" title="Password Protected Room"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+          <span id="chat-room-host-badge" style="display:none;" title="You are the room host!"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> Host</span>
         </div>
 
-        <button class="btn btn-accent btn-pill" id="chat-btn-create-room" onclick="ChatApp.openCreateRoomModal()" style="background:#0284C7;border-color:#38BDF8;font-size:11px;padding:4px 10px;">
-          ＋ Create Room
+        <button class="btn btn-accent btn-pill" id="chat-btn-create-room" onclick="ChatApp.openCreateRoomModal()" style="font-size:11px;padding:4px 10px;">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Create Room
         </button>
 
-        <button class="btn btn-pill" id="chat-btn-room-members" onclick="ChatApp.openMembersModal()" title="Active room members & Host kick/ban controls">
-          👥 <span id="chat-members-badge">1</span>
+        <button class="btn btn-pill" id="chat-btn-room-members" onclick="ChatApp.openMembersModal()" title="Active room members">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> <span id="chat-members-badge">1</span>
         </button>
       </div>
 
       <!-- User Badge & Actions -->
       <div style="display:flex;align-items:center;gap:8px;">
-        <span id="chat-active-count" style="background:#10B981;color:#064E3B;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:800;">● Online</span>
-        <button class="btn btn-pill account-pill-btn" id="chat-change-user-btn" onclick="AccountManager.openModal()" style="border-color:var(--accent);color:var(--accent);" title="Account & Profile">
+        <span id="chat-active-count" style="background:#10B981;color:#FFFFFF;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:800;">● Online</span>
+      </div>
+
+      <div class="header-actions-universal">
+        <button class="btn btn-pill account-pill-btn" id="chat-change-user-btn" onclick="AccountManager.openModal()" title="Account & Profile">
           <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-          <span id="chat-current-user-badge">@Username</span> ✏️
+          <span class="account-username-text" id="chat-current-user-badge">Log In</span>
+          <span class="account-verified-pill-icon" style="color:#10B981;display:none;margin-left:3px;" title="Verified Account"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
         </button>
         <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
-          <span class="theme-mode-text">☀️ Light Mode</span>
+          <span class="theme-icon-slot"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></span>
+          <span class="theme-mode-text">Light Mode</span>
         </button>
       </div>
     </header>
@@ -285,33 +288,37 @@
       <div class="chat-messages-container" id="chat-messages-container"></div>
 
       <div class="chat-input-bar">
-        <input type="text" id="chat-input-box" class="chat-input-box" placeholder="Type a message (filtered for school safety)... [Enter to send]" />
-        <button class="btn btn-accent" id="chat-send-btn" style="padding:0 20px;">Send ↵</button>
+        <input type="text" id="chat-input-box" class="chat-input-box" placeholder="Type a message... [Enter to send]" />
+        <button class="btn btn-accent" id="chat-send-btn" style="padding:0 20px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Send</button>
       </div>
     </div>
   </div>
 
   <!-- ========================================================
-       VIEW 3: 4CHAN-STYLE FORUM (THE BOARD)
+       VIEW 3: DISCUSSION BOARD (THE BOARD)
        ======================================================== -->
   <div class="app-view" id="view-forum">
     <header class="forum-app-header">
       <div style="display:flex;align-items:center;gap:12px;">
-        <button class="back-to-hub-btn" onclick="switchMainView('hub')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <button class="back-to-hub-btn" onclick="switchMainView('hub')" title="Return to Hub">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Hub
         </button>
         <img src="assets/logo_avatar.gif" class="header-cat-badge" alt="Cat Logo">
         <div style="font-weight:800;font-size:15px;color:var(--accent);">THE BOARD · FORUM</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="btn btn-accent" id="btn-toggle-post-box">＋ New Thread</button>
+        <button class="btn btn-accent" id="btn-toggle-post-box"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> New Thread</button>
+      </div>
+      <div class="header-actions-universal">
         <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
           <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-          <span class="account-username-text">Log In</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
+          <span class="account-username-text">Log In</span>
+          <span class="account-verified-pill-icon" style="color:#10B981;display:none;margin-left:3px;" title="Verified Account"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
         </button>
         <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
-          <span class="theme-mode-text">☀️ Light Mode</span>
+          <span class="theme-icon-slot"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></span>
+          <span class="theme-mode-text">Light Mode</span>
         </button>
       </div>
     </header>
@@ -330,9 +337,9 @@
       <div class="forum-post-box" id="forum-post-box" style="display:none;">
         <div style="font-weight:bold;font-size:13px;color:var(--accent);margin-bottom:8px;">Create New Thread</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <input type="text" id="post-name-input" placeholder="Name / Tripcode (optional)" style="padding:6px;font-size:12px;" />
+          <input type="text" id="post-name-input" placeholder="Name (optional)" style="padding:6px;font-size:12px;" />
           <input type="text" id="post-subject-input" placeholder="Subject (Title)" style="padding:6px;font-size:12px;" />
-          <textarea id="post-comment-input" placeholder="Comment (lines starting with > will be greentext)" rows="4" style="padding:6px;font-size:12px;"></textarea>
+          <textarea id="post-comment-input" placeholder="Comment (lines starting with > will be quotes)" rows="4" style="padding:6px;font-size:12px;"></textarea>
           <input type="text" id="post-image-input" placeholder="Image URL (optional)" style="padding:6px;font-size:12px;" />
           <button class="btn btn-accent" id="forum-submit-thread-btn" style="align-self:flex-end;">Submit Post</button>
         </div>
@@ -346,7 +353,7 @@
       <!-- Thread Detail View -->
       <div id="forum-thread-view" style="display:none;">
         <div style="margin-bottom:12px;">
-          <button class="btn" id="forum-back-catalog-btn">[ ← Return to Catalog ]</button>
+          <button class="btn" id="forum-back-catalog-btn"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Return to Catalog</button>
         </div>
         <div id="forum-thread-detail"></div>
       </div>
@@ -359,8 +366,8 @@
   <div class="app-view" id="view-notes">
     <header class="notes-app-header">
       <div style="display:flex;align-items:center;gap:12px;">
-        <button class="back-to-hub-btn" onclick="switchMainView('hub')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <button class="back-to-hub-btn" onclick="switchMainView('hub')" title="Return to Hub">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           Hub
         </button>
         <img src="assets/logo_avatar.gif" class="header-cat-badge" alt="Cat Logo">
@@ -368,17 +375,21 @@
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <button class="btn" onclick="AccountManager.saveScratchpad(''); document.getElementById('scratchpad-text').value='';">Clear</button>
+      </div>
+      <div class="header-actions-universal">
         <button class="btn btn-pill account-pill-btn" onclick="AccountManager.openModal()" title="Account & Profile">
           <img src="assets/logo_avatar.gif" class="account-avatar-mini" alt="Avatar">
-          <span class="account-username-text">Log In</span><span class="account-verified-pill-icon" style="color:#10B981;font-weight:900;font-size:12px;display:none;margin-left:3px;" title="Verified Account">✓</span>
+          <span class="account-username-text">Log In</span>
+          <span class="account-verified-pill-icon" style="color:#10B981;display:none;margin-left:3px;" title="Verified Account"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
         </button>
         <button class="btn btn-pill theme-toggle-btn" onclick="ThemeManager.toggle()" title="Toggle Dark/Light Mode">
-          <span class="theme-mode-text">☀️ Light Mode</span>
+          <span class="theme-icon-slot"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg></span>
+          <span class="theme-mode-text">Light Mode</span>
         </button>
       </div>
     </header>
     <div style="flex:1;padding:24px;max-width:800px;margin:0 auto;width:100%;display:flex;flex-direction:column;">
-      <textarea id="scratchpad-text" style="flex:1;width:100%;border-radius:12px;padding:16px;font-family:monospace;font-size:14px;resize:none;outline:none;" placeholder="Jot down quick homework notes, calculations, or links... Auto-saved to this browser."></textarea>
+      <textarea id="scratchpad-text" style="flex:1;width:100%;border-radius:12px;padding:16px;font-family:monospace;font-size:14px;resize:none;outline:none;" placeholder="Quick notes, scratchpad, ideas... Auto-saved to this browser."></textarea>
     </div>
   </div>
 
@@ -387,23 +398,23 @@
     <div class="modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;">
         <div style="font-weight:800;font-size:16px;" id="modal-dl-title">Download Chapter</div>
-        <button style="background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;" onclick="closeDownloadModal()">✕</button>
+        <button style="background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;" onclick="closeDownloadModal()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <p style="font-size:12px;color:var(--text-muted);margin-top:6px;">Select your download destination:</p>
       
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
         <div class="modal-option-btn" onclick="executeCurrentChapterDownload('zip')">
-          <div style="font-weight:700;font-size:13px;">📦 Download as ZIP Archive (.zip)</div>
+          <div style="font-weight:700;font-size:13px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Download as ZIP Archive (.zip)</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Single zip file containing all pages. Works on all browsers and mobile devices.</div>
         </div>
 
         <div class="modal-option-btn" onclick="executeCurrentChapterDownload('folder')">
-          <div style="font-weight:700;font-size:13px;">📁 Save Directly to Folder on Computer</div>
+          <div style="font-weight:700;font-size:13px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Save Directly to Folder on Computer</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Picks a destination folder on your machine and writes pages directly into it.</div>
         </div>
 
         <div class="modal-option-btn" onclick="executeCurrentChapterDownload('cache')">
-          <div style="font-weight:700;font-size:13px;">💾 Save to Browser Offline Storage</div>
+          <div style="font-weight:700;font-size:13px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Save to Browser Offline Storage</div>
           <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Caches in IndexedDB so you can read offline anytime without downloading files.</div>
         </div>
       </div>
@@ -416,17 +427,17 @@
     <div class="modal-card chat-modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <div style="display:flex;align-items:center;gap:10px;">
-          <div style="font-size:22px;">💬</div>
+          <div style="display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
           <div>
-            <div style="font-weight:800;font-size:17px;color:#FFF;">Chat Rooms</div>
+            <div style="font-weight:800;font-size:17px;color:var(--text);">Chat Rooms</div>
             <div style="font-size:12px;color:#94A3B8;">Browse public rooms or join private rooms with password</div>
           </div>
         </div>
-        <button class="modal-close-btn" onclick="ChatApp.closeModals()">✕</button>
+        <button class="modal-close-btn" onclick="ChatApp.closeModals()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div style="display:flex;gap:10px;margin-bottom:16px;">
-        <input type="text" id="chat-room-search-input" placeholder="Search rooms..." style="flex:1;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;" />
+        <input type="text" id="chat-room-search-input" placeholder="Search rooms..." style="flex:1;background:#0F172A;border:1px solid #334155;color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;" />
         <button class="btn btn-accent" onclick="ChatApp.openCreateRoomModal()" style="background:#0284C7;border-color:#38BDF8;white-space:nowrap;font-weight:700;">＋ Create Room</button>
       </div>
 
@@ -442,39 +453,39 @@
   <div class="modal-backdrop" id="chat-modal-create" style="display:none;">
     <div class="modal-card chat-modal-card" style="max-width:440px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div style="font-weight:800;font-size:17px;color:#FFF;">✨ Create a Chat Room</div>
-        <button class="modal-close-btn" onclick="ChatApp.closeModals()">✕</button>
+        <div style="font-weight:800;font-size:17px;color:var(--text);">Create a Chat Room</div>
+        <button class="modal-close-btn" onclick="ChatApp.closeModals()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <form id="chat-create-room-form" onsubmit="event.preventDefault(); ChatApp.submitCreateRoom();">
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div>
             <label style="display:block;font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:4px;text-transform:uppercase;">Room Name *</label>
-            <input type="text" id="new-room-name-input" required maxlength="30" placeholder="e.g. Anime Club, Chill Lounge, Homework" style="width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;" />
+            <input type="text" id="new-room-name-input" required maxlength="30" placeholder="e.g. Anime Club, Chill Lounge, Homework" style="width:100%;background:#0F172A;border:1px solid #334155;color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;" />
           </div>
 
           <div>
             <label style="display:block;font-size:11px;font-weight:700;color:#94A3B8;margin-bottom:4px;text-transform:uppercase;">Topic / Description (Optional)</label>
-            <input type="text" id="new-room-desc-input" maxlength="70" placeholder="What is this room about?" style="width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;" />
+            <input type="text" id="new-room-desc-input" maxlength="70" placeholder="What is this room about?" style="width:100%;background:#0F172A;border:1px solid #334155;color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;" />
           </div>
 
           <div style="background:#0B132B;border:1px solid #1E293B;padding:12px;border-radius:10px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-              <label for="new-room-is-protected" style="font-size:13px;font-weight:700;color:#E2E8F0;cursor:pointer;display:flex;align-items:center;gap:6px;">
-                <span>🔒</span> Password Protect Room
+              <label for="new-room-is-protected" style="font-size:13px;font-weight:700;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:6px;">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Password Protect Room
               </label>
               <input type="checkbox" id="new-room-is-protected" style="cursor:pointer;width:16px;height:16px;" onchange="ChatApp.togglePasswordFields()" />
             </div>
             <div style="font-size:11px;color:#64748B;">Only people with the password can enter. As the creator, you can kick or ban users.</div>
 
             <div id="new-room-password-container" style="display:none;margin-top:10px;">
-              <input type="password" id="new-room-password-input" placeholder="Set room password..." style="width:100%;background:#0F172A;border:1px solid #38BDF8;color:#FFF;padding:8px 12px;border-radius:8px;font-size:13px;" />
+              <input type="password" id="new-room-password-input" placeholder="Set room password..." style="width:100%;background:#0F172A;border:1px solid #38BDF8;color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;" />
             </div>
           </div>
 
           <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
             <button type="button" class="btn" onclick="ChatApp.closeModals()">Cancel</button>
-            <button type="submit" class="btn btn-accent" style="background:#0284C7;border-color:#38BDF8;font-weight:800;">Create & Enter 🚀</button>
+            <button type="submit" class="btn btn-accent" style="background:#0284C7;border-color:#38BDF8;font-weight:800;">Create & Enter</button>
           </div>
         </div>
       </form>
@@ -487,20 +498,20 @@
   <div class="modal-backdrop" id="chat-modal-password" style="display:none;">
     <div class="modal-card chat-modal-card" style="max-width:380px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div style="font-weight:800;font-size:16px;color:#FFF;display:flex;align-items:center;gap:6px;">
-          <span>🔒</span> Private Room
+        <div style="font-weight:800;font-size:16px;color:var(--text);display:flex;align-items:center;gap:6px;">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Private Room
         </div>
-        <button class="modal-close-btn" onclick="ChatApp.closeModals()">✕</button>
+        <button class="modal-close-btn" onclick="ChatApp.closeModals()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <p style="font-size:13px;color:#94A3B8;margin-bottom:12px;" id="chat-pwd-modal-text">This room requires a password to enter:</p>
       
       <form id="chat-password-form" onsubmit="event.preventDefault(); ChatApp.submitPasswordAttempt();">
-        <input type="password" id="chat-join-password-input" required placeholder="Enter password..." style="width:100%;background:#0F172A;border:1px solid #334155;color:#FFF;padding:9px 12px;border-radius:8px;font-size:13px;margin-bottom:8px;" />
+        <input type="password" id="chat-join-password-input" required placeholder="Enter password..." style="width:100%;background:#0F172A;border:1px solid #334155;color:var(--text);padding:9px 12px;border-radius:8px;font-size:13px;margin-bottom:8px;" />
         <div id="chat-password-error" style="display:none;color:#EF4444;font-size:12px;margin-bottom:10px;">Incorrect password. Please try again.</div>
         
         <div style="display:flex;justify-content:flex-end;gap:8px;">
           <button type="button" class="btn" onclick="ChatApp.closeModals()">Cancel</button>
-          <button type="submit" class="btn btn-accent" style="background:#0284C7;border-color:#38BDF8;font-weight:800;">Unlock & Join 🔓</button>
+          <button type="submit" class="btn btn-accent" style="background:#0284C7;border-color:#38BDF8;font-weight:800;">Unlock & Join</button>
         </div>
       </form>
     </div>
@@ -513,12 +524,12 @@
     <div class="modal-card chat-modal-card" style="max-width:440px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
         <div>
-          <div style="font-weight:800;font-size:16px;color:#FFF;display:flex;align-items:center;gap:6px;">
-            <span>👥</span> <span id="chat-members-modal-title">#Lobby Members</span>
+          <div style="font-weight:800;font-size:16px;color:var(--text);display:flex;align-items:center;gap:6px;">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> <span id="chat-members-modal-title">#Lobby Members</span>
           </div>
           <div style="font-size:11px;color:#94A3B8;" id="chat-members-modal-subtitle">Active participants in this room</div>
         </div>
-        <button class="modal-close-btn" onclick="ChatApp.closeModals()">✕</button>
+        <button class="modal-close-btn" onclick="ChatApp.closeModals()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;margin-bottom:8px;">Active Now</div>
@@ -550,7 +561,7 @@
             <div style="font-size:12px;color:var(--text-muted);">Unique usernames, passwords & synced data</div>
           </div>
         </div>
-        <button class="modal-close-btn" onclick="AccountManager.closeModal()">✕</button>
+        <button class="modal-close-btn" onclick="AccountManager.closeModal()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <!-- Account Status Banner -->
@@ -558,11 +569,11 @@
 
       <!-- Modal Tabs Nav -->
       <div class="acc-modal-nav">
-        <button class="acc-tab-btn acc-tab-logged-out active" id="acc-tab-btn-login" onclick="AccountManager.switchModalTab('login')">🔑 Log In</button>
-        <button class="acc-tab-btn acc-tab-logged-out" id="acc-tab-btn-signup" onclick="AccountManager.switchModalTab('signup')">✨ Sign Up</button>
-        <button class="acc-tab-btn acc-tab-logged-in" id="acc-tab-btn-profile" onclick="AccountManager.switchModalTab('profile')">👤 My Profile</button>
-        <button class="acc-tab-btn" id="acc-tab-btn-sync" onclick="AccountManager.switchModalTab('sync')">🔄 Cloud Sync</button>
-        <button class="acc-tab-btn" id="acc-tab-btn-switch" onclick="AccountManager.switchModalTab('switch')">👥 Accounts</button>
+        <button class="acc-tab-btn acc-tab-logged-out active" id="acc-tab-btn-login" onclick="AccountManager.switchModalTab('login')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2l-2 2m-1.5 1.5L14 9l-2-2-4 4 2 2-3 3-2-2-4 4 3 3 14-14z"></path></svg> Log In</button>
+        <button class="acc-tab-btn acc-tab-logged-out" id="acc-tab-btn-signup" onclick="AccountManager.switchModalTab('signup')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Sign Up</button>
+        <button class="acc-tab-btn acc-tab-logged-in" id="acc-tab-btn-profile" onclick="AccountManager.switchModalTab('profile')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> My Profile</button>
+        <button class="acc-tab-btn" id="acc-tab-btn-sync" onclick="AccountManager.switchModalTab('sync')"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg> Cloud Sync</button>
+        <button class="acc-tab-btn" id="acc-tab-btn-switch" onclick="AccountManager.switchModalTab('switch')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Accounts</button>
       </div>
 
       <!-- TAB: LOG IN -->
@@ -579,7 +590,7 @@
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
             <a href="javascript:void(0)" onclick="AccountManager.switchModalTab('signup')" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:700;">Need an account? Sign Up</a>
-            <button type="submit" class="btn btn-accent" style="font-weight:800;padding:8px 22px;">Log In 🔑</button>
+            <button type="submit" class="btn btn-accent" style="font-weight:800;padding:8px 22px;">Log In</button>
           </div>
         </form>
       </div>
@@ -589,7 +600,7 @@
         <form id="form-acc-signup" onsubmit="AccountManager.handleSignupForm(event); return false;" style="display:flex;flex-direction:column;gap:12px;">
           <div id="acc-signup-error" style="display:none;background:rgba(239,68,68,0.1);border:1px solid #EF4444;color:#EF4444;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;"></div>
           <div style="font-size:12px;color:var(--text-muted);background:var(--card-bg);padding:8px;border-radius:8px;border:1px solid var(--border);">
-            🔒 <strong>Strict Uniqueness:</strong> Your username is protected with your password. No other user can claim or send messages with your name.
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> <strong>Strict Uniqueness:</strong> Your username is protected with your password. No other user can claim or send messages with your name.
           </div>
           <div>
             <label class="acc-form-label">Desired Username (Unique)</label>
@@ -615,7 +626,7 @@
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
             <a href="javascript:void(0)" onclick="AccountManager.switchModalTab('login')" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:700;">Already registered? Log In</a>
-            <button type="submit" class="btn btn-accent" style="font-weight:800;padding:8px 22px;">Create Account & Claim Name ✓</button>
+            <button type="submit" class="btn btn-accent" style="font-weight:800;padding:8px 22px;">Create Account & Claim Name</button>
           </div>
         </form>
       </div>
@@ -636,7 +647,7 @@
             <input type="text" id="acc-edit-bio" class="acc-input" placeholder="Reading JJK, homework later..." maxlength="120" />
           </div>
           <div style="display:flex;justify-content:flex-end;gap:8px;">
-            <button class="btn btn-accent" onclick="AccountManager.saveProfileFromForm()" style="font-weight:800;padding:8px 20px;">Save Profile ✓</button>
+            <button class="btn btn-accent" onclick="AccountManager.saveProfileFromForm()" style="font-weight:800;padding:8px 20px;">Save Profile</button>
           </div>
 
           <!-- Password change section -->
@@ -663,9 +674,9 @@
               Your bookmarks, reading progress, scratchpad notes, and password credentials are synchronized safely.
             </div>
             <div class="sync-stats-grid" style="margin-top:10px;">
-              <div class="sync-stat-pill">📖 Bookmarks: <strong id="sync-stat-bookmarks">0</strong></div>
-              <div class="sync-stat-pill">🔖 Last Read: <strong id="sync-stat-lastread">None</strong></div>
-              <div class="sync-stat-pill">📝 Scratchpad: <strong id="sync-stat-notes">Empty</strong></div>
+              <div class="sync-stat-pill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Bookmarks: <strong id="sync-stat-bookmarks">0</strong></div>
+              <div class="sync-stat-pill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Last Read: <strong id="sync-stat-lastread">None</strong></div>
+              <div class="sync-stat-pill"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Scratchpad: <strong id="sync-stat-notes">Empty</strong></div>
             </div>
           </div>
 
@@ -673,8 +684,8 @@
           <div style="border-top:1px solid var(--border);padding-top:12px;">
             <div style="font-weight:800;font-size:13px;color:var(--text);margin-bottom:8px;">Transfer to School Chromebook or Another PC</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-pill btn-accent" onclick="AccountManager.downloadAccountBackup()">💾 Export Account (.json)</button>
-              <button class="btn btn-pill" onclick="AccountManager.copySyncCodeToClipboard()">📋 Copy 1-Click Sync Code</button>
+              <button class="btn btn-pill btn-accent" onclick="AccountManager.downloadAccountBackup()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Export Account (.json)</button>
+              <button class="btn btn-pill" onclick="AccountManager.copySyncCodeToClipboard()"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> Copy 1-Click Sync Code</button>
             </div>
           </div>
 
@@ -683,7 +694,7 @@
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;gap:8px;align-items:center;">
                 <input type="file" id="acc-import-file-input" accept=".json" style="display:none;" onchange="AccountManager.handleImportFile(this)" />
-                <button class="btn btn-pill" onclick="document.getElementById('acc-import-file-input').click()">📂 Upload .json Backup</button>
+                <button class="btn btn-pill" onclick="document.getElementById('acc-import-file-input').click()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Upload .json Backup</button>
               </div>
               <div style="display:flex;gap:6px;">
                 <input type="text" id="sync-token-input" class="acc-input" placeholder="Paste 1-Click Sync Code here..." style="font-size:12px;padding:6px 10px;" />
@@ -698,7 +709,7 @@
       <div class="acc-tab-content" id="acc-tab-pane-switch" style="display:none;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <div style="font-size:12px;color:var(--text-muted);">Switch accounts or register a new profile:</div>
-          <button class="btn btn-pill btn-accent" onclick="AccountManager.switchModalTab('signup')" style="font-size:12px;padding:5px 12px;">＋ Register New</button>
+          <button class="btn btn-pill btn-accent" onclick="AccountManager.switchModalTab('signup')" style="font-size:12px;padding:5px 12px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Register New</button>
         </div>
         <div id="acc-list-container" style="display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto;">
           <!-- Rendered dynamically by AccountManager -->
@@ -714,6 +725,7 @@
   <script src="apps.js"></script>
   <script src="chat.js"></script>
   <script src="forum.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
