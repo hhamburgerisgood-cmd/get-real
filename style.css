@@ -55,17 +55,26 @@ body {
 }
 
 /* ----------------- NEAL.FUN HUB HEADER ----------------- */
+#view-hub {
+  position: relative;
+}
+
 .hub-header {
   text-align: center;
-  padding: 20px 20px 20px 20px;
+  padding: 42px 20px 20px 20px;
+  position: relative;
 }
 
 .hub-top-bar {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  margin: 0;
+  padding: 0;
+  z-index: 100;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  max-width: 1050px;
-  margin: 0 auto 10px auto;
-  padding: 0 24px;
 }
 
 .hub-theme-tools {
@@ -367,7 +376,8 @@ body {
 .reader-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 8px 16px;
+  padding: 10px 16px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -693,7 +703,8 @@ body {
 .chat-app-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 10px 20px;
+  padding: 10px 16px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1000,7 +1011,8 @@ body {
 .forum-app-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 10px 20px;
+  padding: 10px 16px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1165,7 +1177,8 @@ body {
 .notes-app-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 10px 20px;
+  padding: 10px 16px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: space-between;

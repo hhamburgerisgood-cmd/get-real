@@ -30,6 +30,47 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// MANGA PROXY AND FALLBACK UTILITIES
+let preferImageProxy = false;
+
+function getMangaImageUrl(rawUrl, tier = 0) {
+  if (!rawUrl || typeof rawUrl !== 'string') return rawUrl || '';
+  if (rawUrl.startsWith('blob:') || rawUrl.startsWith('data:')) {
+    return rawUrl;
+  }
+  const effectiveTier = (preferImageProxy && tier === 0) ? 1 : tier;
+  if (effectiveTier === 0) {
+    return rawUrl;
+  } else if (effectiveTier === 1) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}`;
+  } else if (effectiveTier === 2) {
+    return `https://images.weserv.nl/?url=${encodeURIComponent(rawUrl)}`;
+  }
+  return rawUrl;
+}
+
+async function fetchMangaBlob(url) {
+  if (!url) throw new Error('No URL provided');
+  if (url.startsWith('blob:') || url.startsWith('data:')) {
+    const res = await fetch(url);
+    return await res.blob();
+  }
+  const urlsToTry = [
+    url,
+    `https://wsrv.nl/?url=${encodeURIComponent(url)}`,
+    `https://images.weserv.nl/?url=${encodeURIComponent(url)}`
+  ];
+  for (const u of urlsToTry) {
+    try {
+      const res = await fetch(u);
+      if (res.ok) {
+        return await res.blob();
+      }
+    } catch(e) {}
+  }
+  throw new Error('Failed to fetch image: ' + url);
+}
+
 // MAIN VIEW SWITCHER (Hub, Reader, Chat, Forum, Notes)
 function switchMainView(viewId) {
   document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
@@ -112,9 +153,27 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Load first chapter in reader
-  if (allChapters.length > 0) {
-    selectChapter(allChapters[0], 0);
+  // Load first chapter in reader, or chapter specified in URL (#chapter-1 or ?chapter=1)
+  let initialChapter = allChapters.length > 0 ? allChapters[0] : null;
+  try {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash || '';
+      const params = new URLSearchParams(window.location.search || '');
+      const paramCh = params.get('chapter') || params.get('ch');
+      const hashMatch = hash.match(/chapter[/-](\d+(\.\d+)?)/i) || hash.match(/ch[/-](\d+(\.\d+)?)/i);
+      const targetNum = paramCh ? parseFloat(paramCh) : (hashMatch ? parseFloat(hashMatch[1]) : null);
+      if (targetNum !== null) {
+        const found = allChapters.find(c => c.number === targetNum);
+        if (found) {
+          initialChapter = found;
+          switchMainView('reader');
+        }
+      }
+    }
+  } catch (e) {}
+
+  if (initialChapter) {
+    selectChapter(initialChapter, 0);
   }
 });
 
@@ -152,6 +211,14 @@ function setupReaderControls() {
     searchInput.addEventListener('input', debounce((e) => {
       renderChapterCatalog(e.target.value);
     }, 180));
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const matches = renderChapterCatalog(searchInput.value);
+        if (matches && matches.length > 0) {
+          selectChapter(matches[0], 0);
+        }
+      }
+    });
   }
 
   document.getElementById('btn-cycle-sort')?.addEventListener('click', cycleSortMode);
@@ -236,15 +303,27 @@ function getSortedChapters() {
 
 function renderChapterCatalog(filter = '') {
   const container = document.getElementById('chapter-list');
-  if (!container) return;
+  if (!container) return [];
   container.innerHTML = '';
 
   const q = filter.trim().toLowerCase();
+  const urlChapterMatch = q.match(/chapter[/-](\d+(\.\d+)?)/i);
+  const matchedNum = urlChapterMatch ? parseFloat(urlChapterMatch[1]) : null;
+
   const chapters = getSortedChapters().filter(c => {
     if (!q) return true;
     const titleStr = (c && c.title) ? c.title.toLowerCase() : '';
+    const nameStr = (c && c.name) ? c.name.toLowerCase() : '';
     const numStr = (c && c.number != null) ? c.number.toString() : '';
-    return titleStr.includes(q) || numStr.includes(q);
+    const urlStr = (c && c.url) ? c.url.toLowerCase() : '';
+
+    if (titleStr.includes(q) || nameStr.includes(q) || numStr === q || urlStr.includes(q) || q.includes(urlStr)) {
+      return true;
+    }
+    if (matchedNum !== null && c.number === matchedNum) {
+      return true;
+    }
+    return false;
   });
 
   const fragment = document.createDocumentFragment();
@@ -256,12 +335,13 @@ function renderChapterCatalog(filter = '') {
     const safeTitle = escapeHtml(ch.title || '');
     el.innerHTML = `
       <span style="background:var(--surface-muted);color:var(--accent);padding:3px 6px;border-radius:4px;font-size:11px;font-weight:800;min-width:44px;text-align:center;">${ch.isLocal ? 'OFFLINE' : '#' + ch.number}</span>
-      <span style="font-size:12px;font-weight:600;color:#FFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${safeTitle}">${safeTitle}</span>
+      <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${safeTitle}">${safeTitle}</span>
     `;
     el.addEventListener('click', () => selectChapter(ch, 0));
     fragment.appendChild(el);
   });
   container.appendChild(fragment);
+  return chapters;
 }
 
 function updateCatalogSelection() {
@@ -323,17 +403,25 @@ async function selectChapter(chapter, startPage = 0) {
 }
 
 async function fetchChapterPages(chapter) {
-  try {
-    const proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent(chapter.url);
-    const resp = await fetch(proxyUrl, { cache: 'force-cache' });
-    if (resp.ok) {
-      const html = await resp.text();
-      const extracted = extractImagesFromHtml(html);
-      if (extracted.length > 0) return extracted;
-    }
-  } catch (e) {}
+  const proxies = [
+    (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+  ];
+  for (const getProxy of proxies) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const resp = await fetch(getProxy(chapter.url), { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (resp.ok) {
+        const html = await resp.text();
+        const extracted = extractImagesFromHtml(html);
+        if (extracted.length > 0) return extracted;
+      }
+    } catch (e) {}
+  }
 
-  // High-res pattern for jjkmangaa
+  // Fallback pattern for jjkmangaa
   const fallback = [];
   for (let i = 1; i <= 25; i++) {
     fallback.push(`https://jjkmangaa.com/wp-content/uploads/2025/06/Chapter-${chapter.number}-${i}.webp`);
@@ -377,7 +465,7 @@ function preloadAdjacentPages() {
     const img = new Image();
     img.referrerPolicy = 'no-referrer';
     img.decoding = 'async';
-    img.src = url;
+    img.src = getMangaImageUrl(url, preferImageProxy ? 1 : 0);
   });
 }
 
@@ -386,12 +474,16 @@ function renderPages() {
   const contWrap = document.getElementById('continuous-wrapper');
   const pageBadge = document.getElementById('page-counter-badge');
   const singleControls = document.getElementById('single-page-controls');
+  const loader = document.getElementById('reader-loader');
 
   if (isContinuous) {
-    singleWrap.style.display = 'none';
-    contWrap.style.display = 'flex';
-    singleControls.style.display = 'none';
-    contWrap.innerHTML = '';
+    if (singleWrap) singleWrap.style.display = 'none';
+    if (contWrap) {
+      contWrap.style.display = 'flex';
+      contWrap.innerHTML = '';
+    }
+    if (singleControls) singleControls.style.display = 'none';
+    if (loader) loader.style.display = 'none';
 
     const fragment = document.createDocumentFragment();
     currentPages.forEach((url, i) => {
@@ -399,27 +491,65 @@ function renderPages() {
       img.className = 'continuous-img';
       img.setAttribute('referrerpolicy', 'no-referrer');
       img.setAttribute('decoding', 'async');
-      img.src = url;
       img.alt = `Page ${i + 1}`;
-      img.loading = 'lazy';
+      img.loading = i < 3 ? 'eager' : 'lazy';
+
+      let tier = preferImageProxy ? 1 : 0;
+      img.onerror = () => {
+        if (tier === 0) {
+          tier = 1;
+          preferImageProxy = true;
+          img.src = getMangaImageUrl(url, 1);
+        } else if (tier === 1) {
+          tier = 2;
+          img.src = getMangaImageUrl(url, 2);
+        }
+      };
+      img.src = getMangaImageUrl(url, tier);
       fragment.appendChild(img);
     });
-    contWrap.appendChild(fragment);
-    document.getElementById('reader-scroll-container').scrollTop = 0;
+    if (contWrap) contWrap.appendChild(fragment);
+    const scrollContainer = document.getElementById('reader-scroll-container');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
   } else {
-    singleWrap.style.display = 'flex';
-    contWrap.style.display = 'none';
-    singleControls.style.display = 'flex';
+    if (singleWrap) singleWrap.style.display = 'flex';
+    if (contWrap) contWrap.style.display = 'none';
+    if (singleControls) singleControls.style.display = 'flex';
 
     const imgEl = document.getElementById('current-page-img');
     if (imgEl && currentPages[currentPageIndex]) {
+      const rawUrl = currentPages[currentPageIndex];
+      if (loader) loader.style.display = 'block';
+      imgEl.style.opacity = '0.6';
       imgEl.setAttribute('referrerpolicy', 'no-referrer');
       imgEl.setAttribute('decoding', 'async');
-      imgEl.src = currentPages[currentPageIndex];
+
+      let tier = preferImageProxy ? 1 : 0;
+      imgEl.onload = () => {
+        imgEl.style.opacity = '1';
+        if (loader) loader.style.display = 'none';
+      };
+      imgEl.onerror = () => {
+        if (tier === 0) {
+          tier = 1;
+          preferImageProxy = true;
+          imgEl.src = getMangaImageUrl(rawUrl, 1);
+        } else if (tier === 1) {
+          tier = 2;
+          imgEl.src = getMangaImageUrl(rawUrl, 2);
+        } else {
+          if (loader) loader.style.display = 'none';
+          imgEl.style.opacity = '1';
+        }
+      };
+      imgEl.src = getMangaImageUrl(rawUrl, tier);
       imgEl.style.transform = `scale(${zoomFactor})`;
     }
-    pageBadge.textContent = `Page ${currentPageIndex + 1} of ${currentPages.length}`;
-    document.getElementById('reader-scroll-container').scrollTop = 0;
+    if (pageBadge) {
+      pageBadge.textContent = `Page ${currentPageIndex + 1} of ${currentPages.length}`;
+    }
+    const scrollContainer = document.getElementById('reader-scroll-container');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
 
     preloadAdjacentPages();
   }
@@ -614,8 +744,7 @@ async function downloadChapterToFolder(chapter, pages) {
   try {
     const chDir = await handle.getDirectoryHandle(`Chapter_${chapter.number}`, { create: true });
     for (let i = 0; i < pages.length; i++) {
-      const resp = await fetch(pages[i]);
-      const blob = await resp.blob();
+      const blob = await fetchMangaBlob(pages[i]);
       const fh = await chDir.getFileHandle(`page_${String(i+1).padStart(3,'0')}.webp`, { create: true });
       const w = await fh.createWritable();
       await w.write(blob);
@@ -632,8 +761,7 @@ async function downloadChapterAsZip(chapter, pages) {
   const f = zip.folder(`Chapter_${chapter.number}`);
   for (let i = 0; i < pages.length; i++) {
     try {
-      const resp = await fetch(pages[i]);
-      const blob = await resp.blob();
+      const blob = await fetchMangaBlob(pages[i]);
       f.file(`page_${String(i+1).padStart(3,'0')}.webp`, blob);
     } catch(e) {}
   }
