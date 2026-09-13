@@ -239,6 +239,31 @@ const firebaseConfig = {
         thread.replies.push(reply);
         saveLocalThreads(threads);
       }
+    },
+
+    // Manga Chapter Cloud Storage
+    getMangaChapter: async function(chapterNumber) {
+      if (this.isConfigured && this.db) {
+        try {
+          const doc = await this.db.collection('manga_chapters').doc(String(chapterNumber)).get();
+          if (doc.exists) return doc.data();
+        } catch (e) {
+          console.warn('Firestore getMangaChapter error:', e);
+        }
+      }
+      return null;
+    },
+
+    saveMangaChapter: async function(chapterData) {
+      if (this.isConfigured && this.db && chapterData && chapterData.number != null) {
+        try {
+          await this.db.collection('manga_chapters').doc(String(chapterData.number)).set(chapterData, { merge: true });
+          return true;
+        } catch (e) {
+          console.warn('Firestore saveMangaChapter error:', e);
+        }
+      }
+      return false;
     }
   };
 

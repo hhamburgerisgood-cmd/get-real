@@ -498,7 +498,19 @@ async function selectChapter(chapter, startPage = 0) {
   const loader = document.getElementById('reader-loader');
   if (loader) loader.style.display = 'block';
 
-  if (chapter.pages && chapter.pages.length > 0) {
+  let loadedPages = null;
+  if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured) {
+    try {
+      const cloudCh = await FirebaseService.getMangaChapter(chapter.number);
+      if (cloudCh && cloudCh.pages && cloudCh.pages.length > 0) {
+        loadedPages = cloudCh.pages;
+      }
+    } catch(e) {}
+  }
+
+  if (loadedPages) {
+    currentPages = loadedPages;
+  } else if (chapter.pages && chapter.pages.length > 0) {
     currentPages = chapter.pages;
   } else if (chapter.isLocal && chapter.pages) {
     currentPages = chapter.pages;
