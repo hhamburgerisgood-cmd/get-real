@@ -117,8 +117,12 @@ const ChatApp = (() => {
     updateRoomsBadge();
 
     if (typeof FirebaseService !== 'undefined') {
-      chatUnsubscribe = FirebaseService.onChatMessages(currentRoomId, () => {
-        renderMessages();
+      chatUnsubscribe = FirebaseService.onChatMessages(currentRoomId, (msgs) => {
+        if (typeof handleRemoteMessages === 'function') {
+          handleRemoteMessages(msgs);
+        } else {
+          renderMessages();
+        }
       });
     }
 
@@ -252,6 +256,48 @@ const ChatApp = (() => {
     appendSingleMessage(msg);
   }
 
+  function handleRemoteMessages(remoteMsgs) {
+    if (!Array.isArray(remoteMsgs) || remoteMsgs.length === 0) return;
+    let localMsgs = getMessages();
+    let changed = false;
+
+    remoteMsgs.forEach(rm => {
+      const author = rm.author || rm.user || 'Guest';
+      const text = rm.text || '';
+      const timestamp = Number(rm.timestamp) || Date.now();
+      const verified = !!rm.verified;
+
+      const exists = localMsgs.some(lm => {
+        if (rm.id && lm.id && rm.id === lm.id) return true;
+        return lm.channel === currentRoomId &&
+               lm.user === author &&
+               lm.text === text &&
+               Math.abs((lm.timestamp || 0) - timestamp) < 4000;
+      });
+
+      if (!exists) {
+        const newMsg = {
+          id: rm.id || ('msg_remote_' + timestamp + '_' + Math.random().toString(36).substr(2, 4)),
+          channel: currentRoomId,
+          user: author,
+          verified: verified,
+          avatar: rm.avatar || 'logo_avatar',
+          text: text,
+          timestamp: timestamp
+        };
+        localMsgs.push(newMsg);
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      localMsgs.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+      if (localMsgs.length > 250) localMsgs = localMsgs.slice(-250);
+      localStorage.setItem(STORAGE_MSGS, JSON.stringify(localMsgs));
+      renderMessages();
+    }
+  }
+
   // USER MANAGEMENT
   function renderUserHeader() {
     const userBadge = document.getElementById('chat-current-user-badge');
@@ -353,8 +399,12 @@ const ChatApp = (() => {
     currentRoomId = roomId;
 
     if (typeof FirebaseService !== 'undefined') {
-      chatUnsubscribe = FirebaseService.onChatMessages(currentRoomId, () => {
-        renderMessages();
+      chatUnsubscribe = FirebaseService.onChatMessages(currentRoomId, (msgs) => {
+        if (typeof handleRemoteMessages === 'function') {
+          handleRemoteMessages(msgs);
+        } else {
+          renderMessages();
+        }
       });
     }
 
@@ -873,17 +923,22 @@ const ChatApp = (() => {
       timestamp: Date.now()
     };
 
+    // 1. Optimistic UI update: persist locally, update DOM, and clear input immediately
+    saveMessage(msg);
+    if (input) input.value = '';
+
+    // 2. Asynchronous remote sync to Firestore (does not block user input)
     if (typeof FirebaseService !== 'undefined') {
-      await FirebaseService.sendChatMessage(currentRoomId, {
+      FirebaseService.sendChatMessage(currentRoomId, {
+        id: msg.id,
         author: currentUser,
         text: cleanedText,
         verified: isVerified,
-        timestamp: Date.now()
+        timestamp: msg.timestamp
+      }).catch(err => {
+        console.warn('FirebaseService sendChatMessage warning:', err);
       });
     }
-
-    saveMessage(msg);
-    if (input) input.value = '';
   }
 
   function createMessageElement(m) {

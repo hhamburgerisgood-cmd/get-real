@@ -115,6 +115,7 @@ const firebaseConfig = {
 
     sendChatMessage: async function(roomId, messageData) {
       const msg = {
+        id: messageData.id || ('msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
         author: messageData.author || 'Guest',
         text: messageData.text || '',
         timestamp: messageData.timestamp || Date.now(),
@@ -123,10 +124,36 @@ const firebaseConfig = {
 
       if (this.isConfigured && this.db) {
         try {
-          await this.db.collection('chat_rooms').doc(roomId).collection('messages').add(msg);
+          const addPromise = this.db.collection('chat_rooms').doc(roomId).collection('messages').add(msg);
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore SDK timeout')), 2500));
+          await Promise.race([addPromise, timeoutPromise]);
           return;
         } catch (e) {
-          console.warn('Firestore sendChatMessage error, saving locally:', e);
+          console.warn('Firestore SDK sendChatMessage warning, trying REST fallback:', e);
+        }
+      }
+
+      // REST API fallback for instant sending even without WebSockets
+      if (this.isConfigured && firebaseConfig.apiKey && firebaseConfig.projectId && typeof fetch !== 'undefined') {
+        try {
+          const restUrl = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/chat_rooms/${roomId}/messages?key=${firebaseConfig.apiKey}`;
+          const body = {
+            fields: {
+              id: { stringValue: msg.id },
+              author: { stringValue: msg.author },
+              text: { stringValue: msg.text },
+              timestamp: { integerValue: String(msg.timestamp) },
+              verified: { booleanValue: msg.verified }
+            }
+          };
+          const res = await fetch(restUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          if (res.ok) return;
+        } catch (err) {
+          console.warn('Firestore REST sendChatMessage warning:', err);
         }
       }
 
@@ -250,7 +277,7 @@ const firebaseConfig = {
           console.warn('Firestore SDK getMangaChapter error, trying REST fallback:', e);
         }
       }
-      if (this.isConfigured && firebaseConfig.apiKey && firebaseConfig.projectId) {
+      if (this.isConfigured && firebaseConfig.apiKey && firebaseConfig.projectId && typeof fetch !== 'undefined') {
         try {
           const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/manga_chapters/${chapterNumber}?key=${firebaseConfig.apiKey}`;
           const res = await fetch(url);
@@ -263,10 +290,65 @@ const firebaseConfig = {
               title: fields.title?.stringValue || `Chapter ${chapterNumber}`,
               name: fields.name?.stringValue || '',
               url: fields.url?.stringValue || '',
+              hasCloudPages: !!(fields.hasCloudPages?.booleanValue),
+              cloudPageCount: parseInt(fields.cloudPageCount?.integerValue || '0', 10),
               pages: pages
             };
           }
         } catch (e) {}
+      }
+      return null;
+    },
+
+    getMangaChapterPages: async function(chapterNumber) {
+      if (!this.isConfigured || !firebaseConfig.apiKey || !firebaseConfig.projectId || typeof fetch === 'undefined') return null;
+      try {
+        const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/manga_chapters/${chapterNumber}/pages?pageSize=100&key=${firebaseConfig.apiKey}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          const docs = data.documents || [];
+          if (docs.length > 0) {
+            const pagesWithIndex = docs.map(d => {
+              const f = d.fields || {};
+              const pNum = parseInt(f.page?.integerValue || '0', 10);
+              const imgData = f.imageData?.stringValue || '';
+              return { page: pNum, imageData: imgData };
+            }).filter(p => p.imageData && p.page > 0);
+
+            pagesWithIndex.sort((a, b) => a.page - b.page);
+            if (pagesWithIndex.length > 0) {
+              return pagesWithIndex.map(p => p.imageData);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Firestore getMangaChapterPages error:', e);
+      }
+      return null;
+    },
+
+    _pageCache: (typeof Map !== 'undefined' ? new Map() : {}),
+
+    getMangaPage: async function(chapterNumber, pageNumber) {
+      const cacheKey = `${chapterNumber}_${pageNumber}`;
+      if (this._pageCache && typeof this._pageCache.get === 'function' && this._pageCache.has(cacheKey)) {
+        return this._pageCache.get(cacheKey);
+      }
+      if (!this.isConfigured || !firebaseConfig.apiKey || !firebaseConfig.projectId || typeof fetch === 'undefined') return null;
+      try {
+        const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/manga_chapters/${chapterNumber}/pages/${pageNumber}?key=${firebaseConfig.apiKey}`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          const b64 = data.fields?.imageData?.stringValue || null;
+          if (b64 && this._pageCache && typeof this._pageCache.set === 'function') {
+            this._pageCache.set(cacheKey, b64);
+          }
+          return b64;
+        }
+      } catch (e) {
+        console.warn(`Firestore getMangaPage error (ch ${chapterNumber} p ${pageNumber}):`, e);
       }
       return null;
     },
