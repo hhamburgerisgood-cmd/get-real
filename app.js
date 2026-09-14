@@ -491,46 +491,55 @@ async function selectChapter(chapter, startPage = 0) {
   const select = document.getElementById('header-ch-select');
   if (select) select.value = chapter.number;
 
-  document.getElementById('status-ch-title').textContent = chapter.title;
+  const titleEl = document.getElementById('status-ch-title');
+  if (titleEl) titleEl.textContent = chapter.title;
 
   updateCatalogSelection();
 
-  const loader = document.getElementById('reader-loader');
-  if (loader) loader.style.display = 'block';
-
-  let loadedPages = null;
-  if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured) {
-    try {
-      const cloudCh = await FirebaseService.getMangaChapter(chapter.number);
-      if (cloudCh) {
-        if (cloudCh.hasCloudPages) {
-          chapter.hasCloudPages = true;
-          if (cloudCh.cloudPageCount) chapter.cloudPageCount = cloudCh.cloudPageCount;
-        }
-        if (cloudCh.pages && cloudCh.pages.length > 0) {
-          loadedPages = cloudCh.pages;
-        }
-      }
-    } catch(e) {}
-  }
-
-  if (loadedPages) {
-    currentPages = loadedPages;
-  } else if (chapter.pages && chapter.pages.length > 0) {
+  // 1. Immediately populate currentPages from catalog so renderPages is instant and never black
+  if (chapter.pages && chapter.pages.length > 0) {
     currentPages = chapter.pages;
   } else if (chapter.isLocal && chapter.pages) {
     currentPages = chapter.pages;
-  } else {
-    currentPages = await fetchChapterPages(chapter);
   }
-
-  if (loader) loader.style.display = 'none';
 
   if (currentPages && currentPages.length > 0) {
     if (currentPageIndex >= currentPages.length) currentPageIndex = 0;
     renderPages();
     if (typeof AccountManager !== 'undefined') {
       AccountManager.saveReadingProgress(chapter.number, currentPageIndex);
+    }
+  }
+
+  // 2. Query Cloud Firestore in background for cloud pages metadata
+  if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured) {
+    FirebaseService.getMangaChapter(chapter.number).then(cloudCh => {
+      if (cloudCh) {
+        if (cloudCh.hasCloudPages) {
+          chapter.hasCloudPages = true;
+          if (cloudCh.cloudPageCount) chapter.cloudPageCount = cloudCh.cloudPageCount;
+        }
+        if (cloudCh.pages && cloudCh.pages.length > 0 && (!currentPages || currentPages.length === 0)) {
+          currentPages = cloudCh.pages;
+          renderPages();
+        }
+      }
+    }).catch(() => {});
+  }
+
+  // 3. Fallback scrape only if catalog had 0 pages
+  if (!currentPages || currentPages.length === 0) {
+    const loader = document.getElementById('reader-loader');
+    if (loader) loader.style.display = 'block';
+    try {
+      const fetched = await fetchChapterPages(chapter);
+      if (loader) loader.style.display = 'none';
+      if (fetched && fetched.length > 0) {
+        currentPages = fetched;
+        renderPages();
+      }
+    } catch(e) {
+      if (loader) loader.style.display = 'none';
     }
   }
 }
@@ -642,23 +651,19 @@ function renderPages() {
         }
       };
 
-      if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured && (currentChapter?.hasCloudPages || url.startsWith('data:'))) {
-        if (url.startsWith('data:')) {
-          img.src = url;
-        } else {
-          FirebaseService.getMangaPage(currentChapter.number, i + 1).then(pageData => {
-            if (pageData) {
-              currentPages[i] = pageData;
-              img.src = pageData;
-            } else {
-              img.src = getMangaImageUrl(url, tier);
-            }
-          }).catch(() => {
-            img.src = getMangaImageUrl(url, tier);
-          });
-        }
+      if (url.startsWith('data:')) {
+        img.src = url;
       } else {
         img.src = getMangaImageUrl(url, tier);
+      }
+
+      if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured && currentChapter && !url.startsWith('data:')) {
+        FirebaseService.getMangaPage(currentChapter.number, i + 1).then(pageData => {
+          if (pageData) {
+            currentPages[i] = pageData;
+            img.src = pageData;
+          }
+        }).catch(() => {});
       }
       fragment.appendChild(img);
     });
@@ -704,23 +709,21 @@ function renderPages() {
         }
       };
 
-      if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured && (currentChapter?.hasCloudPages || rawUrl.startsWith('data:'))) {
-        if (rawUrl.startsWith('data:')) {
-          imgEl.src = rawUrl;
-        } else {
-          FirebaseService.getMangaPage(currentChapter.number, currentPageIndex + 1).then(pageData => {
-            if (pageData) {
-              currentPages[currentPageIndex] = pageData;
-              imgEl.src = pageData;
-            } else {
-              imgEl.src = getMangaImageUrl(rawUrl, tier);
-            }
-          }).catch(() => {
-            imgEl.src = getMangaImageUrl(rawUrl, tier);
-          });
-        }
+      if (rawUrl.startsWith('data:')) {
+        imgEl.src = rawUrl;
       } else {
         imgEl.src = getMangaImageUrl(rawUrl, tier);
+      }
+
+      if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured && currentChapter && !rawUrl.startsWith('data:')) {
+        FirebaseService.getMangaPage(currentChapter.number, currentPageIndex + 1).then(pageData => {
+          if (pageData) {
+            currentPages[currentPageIndex] = pageData;
+            imgEl.src = pageData;
+            imgEl.style.opacity = '1';
+            if (loader) loader.style.display = 'none';
+          }
+        }).catch(() => {});
       }
       imgEl.style.transform = `scale(${zoomFactor})`;
     }

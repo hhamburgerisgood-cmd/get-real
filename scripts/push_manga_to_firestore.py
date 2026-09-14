@@ -121,6 +121,23 @@ def download_image(url):
 
     return None, None
 
+def optimize_image(data, mime):
+    """Ensure image fits comfortably within Firestore 1 MB document limit using WebP."""
+    if len(data) < 700000 and mime == "image/webp":
+        return data, mime
+    try:
+        from PIL import Image
+        import io
+        img = Image.open(io.BytesIO(data))
+        out = io.BytesIO()
+        img.save(out, format="WEBP", quality=82)
+        opt_data = out.getvalue()
+        if len(opt_data) < len(data) or mime != "image/webp":
+            return opt_data, "image/webp"
+    except Exception:
+        pass
+    return data, mime
+
 def check_page_exists(project_id, api_key, chapter_num, page_num):
     """Check if page already exists in Firestore."""
     url = f"{FIRESTORE_BASE.format(project_id=project_id)}/manga_chapters/{chapter_num}/pages/{page_num}?key={api_key}"
@@ -192,6 +209,8 @@ def process_single_page(project_id, api_key, chapter_num, page_num, img_url, for
     img_data, mime = download_image(img_url)
     if not img_data:
         return page_num, False, "download_failed"
+
+    img_data, mime = optimize_image(img_data, mime)
 
     b64 = f"data:{mime};base64," + base64.b64encode(img_data).decode("utf-8")
     ok = upload_page_to_firestore(project_id, api_key, chapter_num, page_num, b64)

@@ -269,14 +269,7 @@ const firebaseConfig = {
     },
 
     getMangaChapter: async function(chapterNumber) {
-      if (this.isConfigured && this.db) {
-        try {
-          const doc = await this.db.collection('manga_chapters').doc(String(chapterNumber)).get();
-          if (doc.exists) return doc.data();
-        } catch (e) {
-          console.warn('Firestore SDK getMangaChapter error, trying REST fallback:', e);
-        }
-      }
+      // 1. Google Firestore REST API first (immune to Tracking Prevention and WebSocket stalls)
       if (this.isConfigured && firebaseConfig.apiKey && firebaseConfig.projectId && typeof fetch !== 'undefined') {
         try {
           const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/manga_chapters/${chapterNumber}?key=${firebaseConfig.apiKey}`;
@@ -297,6 +290,19 @@ const firebaseConfig = {
           }
         } catch (e) {}
       }
+
+      // 2. Firestore SDK fallback with 1.5s timeout protection
+      if (this.isConfigured && this.db) {
+        try {
+          const getPromise = this.db.collection('manga_chapters').doc(String(chapterNumber)).get();
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore SDK timeout')), 1500));
+          const doc = await Promise.race([getPromise, timeoutPromise]);
+          if (doc && doc.exists) return doc.data();
+        } catch (e) {
+          console.warn('Firestore SDK getMangaChapter error:', e);
+        }
+      }
+
       return null;
     },
 
