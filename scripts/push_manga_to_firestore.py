@@ -123,17 +123,29 @@ def download_image(url):
 
 def optimize_image(data, mime):
     """Ensure image fits comfortably within Firestore 1 MB document limit using WebP."""
-    if len(data) < 700000 and mime == "image/webp":
+    if len(data) < 650000 and mime == "image/webp":
         return data, mime
     try:
         from PIL import Image
         import io
         img = Image.open(io.BytesIO(data))
-        out = io.BytesIO()
-        img.save(out, format="WEBP", quality=82)
-        opt_data = out.getvalue()
-        if len(opt_data) < len(data) or mime != "image/webp":
-            return opt_data, "image/webp"
+        if img.mode not in ("RGB", "RGBA"):
+            img = img.convert("RGB")
+        
+        # If very large dimensions, scale down to 1600px width
+        if img.width > 1600:
+            ratio = 1600.0 / img.width
+            new_height = int(img.height * ratio)
+            img = img.resize((1600, new_height), Image.Resampling.LANCZOS)
+
+        opt_data = data
+        for q in [82, 75, 68, 60, 50]:
+            out = io.BytesIO()
+            img.save(out, format="WEBP", quality=q)
+            opt_data = out.getvalue()
+            if len(opt_data) <= 650000:
+                return opt_data, "image/webp"
+        return opt_data, "image/webp"
     except Exception:
         pass
     return data, mime
