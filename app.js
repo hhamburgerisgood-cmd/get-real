@@ -512,18 +512,19 @@ async function selectChapter(chapter, startPage = 0) {
     }
   }
 
-  // 2. Query Cloud Firestore in background for cloud pages metadata
+  // 2. Query Cloud Firestore in background for cloud pages metadata and pages
   if (typeof FirebaseService !== 'undefined' && FirebaseService.isConfigured) {
+    FirebaseService.getMangaChapterPages(chapter.number).then(cloudPages => {
+      if (cloudPages && cloudPages.length > 0) {
+        currentPages = cloudPages;
+        chapter.pages = cloudPages;
+        renderPages();
+      }
+    }).catch(() => {});
     FirebaseService.getMangaChapter(chapter.number).then(cloudCh => {
-      if (cloudCh) {
-        if (cloudCh.hasCloudPages) {
-          chapter.hasCloudPages = true;
-          if (cloudCh.cloudPageCount) chapter.cloudPageCount = cloudCh.cloudPageCount;
-        }
-        if (cloudCh.pages && cloudCh.pages.length > 0 && (!currentPages || currentPages.length === 0)) {
-          currentPages = cloudCh.pages;
-          renderPages();
-        }
+      if (cloudCh && cloudCh.hasCloudPages) {
+        chapter.hasCloudPages = true;
+        if (cloudCh.cloudPageCount) chapter.cloudPageCount = cloudCh.cloudPageCount;
       }
     }).catch(() => {});
   }
