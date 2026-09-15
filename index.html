@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
   <title>Get Real - Manga, Chat, Board & Stuff</title>
-  <link rel="stylesheet" href="style.css?v=2.1">
+  <link rel="stylesheet" href="style.css?v=2.2">
     <script>
     (function() {
       try {
@@ -17,8 +17,8 @@
       } catch(e) {}
     })();
   </script>
-  <script src="theme.js?v=2.1"></script>
-  <script src="account.js?v=2.1"></script>
+  <script src="theme.js?v=2.2"></script>
+  <script src="account.js?v=2.2"></script>
 </head>
 <body>
   <div id="firebase-fallback-banner" class="firebase-fallback-banner" style="display:none;">Offline Mode: Running on local storage.</div>
@@ -288,8 +288,10 @@
       <div class="chat-messages-container" id="chat-messages-container"></div>
 
       <div class="chat-input-bar">
-        <input type="text" id="chat-input-box" class="chat-input-box" placeholder="Type a message... [Enter to send]" />
-        <button class="btn btn-accent" id="chat-send-btn" style="padding:0 20px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Send</button>
+        <form id="chat-input-form" onsubmit="event.preventDefault(); ChatApp.sendMessage(event);" style="display:flex;width:100%;gap:10px;align-items:center;">
+          <input type="text" id="chat-input-box" class="chat-input-box" placeholder="Type a message... [Enter to send]" autocomplete="off" style="flex:1;" />
+          <button type="submit" class="btn btn-accent" id="chat-send-btn" onclick="ChatApp.sendMessage(event)" style="padding:0 20px;height:42px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Send</button>
+        </form>
       </div>
     </div>
   </div>
@@ -720,16 +722,16 @@
 
 <!-- SCRIPTS -->
   <script src="jszip.min.js"></script>
-  <script src="chapters.js?v=2.1"></script>
-  <script src="profanity.js?v=2.1"></script>
-  <script src="apps.js?v=2.1"></script>
-  <script src="chat.js?v=2.1"></script>
-  <script src="forum.js?v=2.1"></script>
+  <script src="chapters.js?v=2.2"></script>
+  <script src="profanity.js?v=2.2"></script>
+  <script src="apps.js?v=2.2"></script>
+  <script src="chat.js?v=2.2"></script>
+  <script src="forum.js?v=2.2"></script>
   <!-- Firebase SDK (CDN) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js?v=2.1"></script>
-  <script src="app.js?v=2.1"></script>
+  <script src="firebase-config.js?v=2.2"></script>
+  <script src="app.js?v=2.2"></script>
 </body>
 </html>

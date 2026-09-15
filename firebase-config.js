@@ -89,51 +89,108 @@ const firebaseConfig = {
 
     // Chat Service Methods
     onChatMessages: function(roomId, callback) {
+      let isUnsubscribed = false;
+      let sdkUnsub = null;
+      let pollTimer = null;
+
+      // 1. Deliver local messages immediately
+      const messagesMap = getLocalChat();
+      const localMsgs = messagesMap[roomId] || [];
+      if (typeof callback === 'function') {
+        try { callback(localMsgs); } catch (e) {}
+      }
+
+      // Helper to fetch and parse REST messages
+      const fetchRestMessages = async () => {
+        if (isUnsubscribed || !firebaseConfig.apiKey || !firebaseConfig.projectId || typeof fetch === 'undefined') return;
+        try {
+          const restUrl = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/chat_rooms/${roomId}/messages?key=${firebaseConfig.apiKey}`;
+          const res = await fetch(restUrl);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.documents && Array.isArray(data.documents)) {
+              const msgs = data.documents.map(doc => {
+                const f = doc.fields || {};
+                return {
+                  id: (f.id && f.id.stringValue) || doc.name.split('/').pop(),
+                  author: (f.author && f.author.stringValue) || (f.user && f.user.stringValue) || 'Guest',
+                  text: (f.text && f.text.stringValue) || '',
+                  timestamp: Number(f.timestamp && (f.timestamp.integerValue || f.timestamp.stringValue)) || Date.now(),
+                  verified: !!(f.verified && f.verified.booleanValue),
+                  avatar: (f.avatar && f.avatar.stringValue) || 'logo_avatar'
+                };
+              });
+              msgs.sort((a, b) => a.timestamp - b.timestamp);
+              if (!isUnsubscribed && typeof callback === 'function') {
+                callback(msgs);
+              }
+            }
+          }
+        } catch (e) {}
+      };
+
+      // 2. Fetch REST immediately
+      if (this.isConfigured) {
+        fetchRestMessages();
+        // 3. Poll REST every 3.5 seconds
+        if (typeof setInterval !== 'undefined') {
+          pollTimer = setInterval(fetchRestMessages, 3500);
+        }
+      }
+
+      // 4. Attach Firestore SDK listener if available (for real-time push where not blocked)
       if (this.isConfigured && this.db) {
         try {
-          return this.db.collection('chat_rooms').doc(roomId).collection('messages')
+          sdkUnsub = this.db.collection('chat_rooms').doc(roomId).collection('messages')
             .orderBy('timestamp', 'asc')
             .limitToLast(100)
             .onSnapshot(snapshot => {
+              if (isUnsubscribed) return;
               const msgs = [];
               snapshot.forEach(doc => msgs.push({ id: doc.id, ...doc.data() }));
-              callback(msgs);
+              if (typeof callback === 'function') {
+                callback(msgs);
+              }
             }, err => {
-              console.warn('Firestore chat listener error, using fallback:', err);
+              console.warn('Firestore chat listener error, using REST fallback:', err);
             });
         } catch (e) {}
       }
 
-      // Offline / Local fallback
-      const messagesMap = getLocalChat();
-      const msgs = messagesMap[roomId] || [];
-      callback(msgs);
-
-      // Return no-op unsubscribe
-      return function() {};
+      // Return unified unsubscribe function
+      return function() {
+        isUnsubscribed = true;
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
+        if (typeof sdkUnsub === 'function') {
+          try { sdkUnsub(); } catch(e) {}
+          sdkUnsub = null;
+        }
+      };
     },
 
     sendChatMessage: async function(roomId, messageData) {
       const msg = {
         id: messageData.id || ('msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
-        author: messageData.author || 'Guest',
+        author: messageData.author || messageData.user || 'Guest',
         text: messageData.text || '',
         timestamp: messageData.timestamp || Date.now(),
-        verified: !!messageData.verified
+        verified: !!messageData.verified,
+        avatar: messageData.avatar || 'logo_avatar'
       };
 
-      if (this.isConfigured && this.db) {
-        try {
-          const addPromise = this.db.collection('chat_rooms').doc(roomId).collection('messages').add(msg);
-          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Firestore SDK timeout')), 2500));
-          await Promise.race([addPromise, timeoutPromise]);
-          return;
-        } catch (e) {
-          console.warn('Firestore SDK sendChatMessage warning, trying REST fallback:', e);
-        }
+      // 1. Offline / Local fallback backup
+      const messagesMap = getLocalChat();
+      if (!messagesMap[roomId]) messagesMap[roomId] = [];
+      messagesMap[roomId].push(msg);
+      if (messagesMap[roomId].length > 100) {
+        messagesMap[roomId] = messagesMap[roomId].slice(-100);
       }
+      saveLocalChat(messagesMap);
 
-      // REST API fallback for instant sending even without WebSockets
+      // 2. REST API dispatch directly (bypasses all browser tracking blocks)
       if (this.isConfigured && firebaseConfig.apiKey && firebaseConfig.projectId && typeof fetch !== 'undefined') {
         try {
           const restUrl = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/chat_rooms/${roomId}/messages?key=${firebaseConfig.apiKey}`;
@@ -143,28 +200,26 @@ const firebaseConfig = {
               author: { stringValue: msg.author },
               text: { stringValue: msg.text },
               timestamp: { integerValue: String(msg.timestamp) },
-              verified: { booleanValue: msg.verified }
+              verified: { booleanValue: msg.verified },
+              avatar: { stringValue: msg.avatar }
             }
           };
-          const res = await fetch(restUrl, {
+          fetch(restUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
-          });
-          if (res.ok) return;
+          }).catch(err => console.warn('Firestore REST sendChatMessage warning:', err));
         } catch (err) {
-          console.warn('Firestore REST sendChatMessage warning:', err);
+          console.warn('Firestore REST sendChatMessage error:', err);
         }
       }
 
-      // Offline fallback
-      const messagesMap = getLocalChat();
-      if (!messagesMap[roomId]) messagesMap[roomId] = [];
-      messagesMap[roomId].push(msg);
-      if (messagesMap[roomId].length > 100) {
-        messagesMap[roomId] = messagesMap[roomId].slice(-100);
+      // 3. Optional SDK dispatch
+      if (this.isConfigured && this.db) {
+        try {
+          this.db.collection('chat_rooms').doc(roomId).collection('messages').add(msg).catch(() => {});
+        } catch (e) {}
       }
-      saveLocalChat(messagesMap);
     },
 
     // Forum Service Methods

@@ -855,26 +855,40 @@ const ChatApp = (() => {
     const input = document.getElementById('chat-input-box');
     const sendBtn = document.getElementById('chat-send-btn');
     const changeUserBtn = document.getElementById('chat-change-user-btn');
+    const form = document.getElementById('chat-input-form');
+
+    if (form) {
+      form.onsubmit = (e) => {
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        sendMessage();
+        return false;
+      };
+    }
 
     if (input) {
-      input.addEventListener('keydown', (e) => {
+      input.onkeydown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
           sendMessage();
         }
-      });
+      };
     }
 
     if (sendBtn) {
-      sendBtn.addEventListener('click', sendMessage);
+      sendBtn.onclick = (e) => {
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        sendMessage();
+      };
     }
 
     if (changeUserBtn) {
-      changeUserBtn.addEventListener('click', promptForUsername);
+      changeUserBtn.onclick = promptForUsername;
     }
   }
 
-  async function sendMessage() {
+  async function sendMessage(e) {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+
     const now = Date.now();
     if (now - lastSentTime < RATE_LIMIT_COOLDOWN_MS) {
       alert('Please wait a moment before sending another message (rate limit cooldown).');
@@ -882,8 +896,7 @@ const ChatApp = (() => {
     }
 
     if (!currentUser) {
-      promptForUsername();
-      if (!currentUser) return;
+      currentUser = (typeof AccountManager !== 'undefined') ? AccountManager.getUsername() : 'Guest';
     }
 
     const room = getCurrentRoom();
@@ -904,7 +917,7 @@ const ChatApp = (() => {
     // Anti-impersonation check
     if (typeof AccountManager !== 'undefined') {
       const isAuth = AccountManager.isAuthenticated();
-      if (!isAuth && AccountManager.isUsernameRegistered(currentUser)) {
+      if (!isAuth && currentUser && currentUser.toLowerCase() !== 'guest' && AccountManager.isUsernameRegistered(currentUser)) {
         alert('The username "@' + currentUser + '" is registered and password-protected.\n\nPlease log in, or choose a different nickname.');
         AccountManager.openModal('login');
         return;
@@ -916,25 +929,34 @@ const ChatApp = (() => {
     const msg = {
       id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       channel: currentRoomId,
-      user: currentUser,
+      user: currentUser || 'Guest',
       verified: isVerified,
       avatar: (typeof AccountManager !== 'undefined') ? AccountManager.getAvatarKey() : 'logo_avatar',
       text: cleanedText,
       timestamp: Date.now()
     };
 
-    // 1. Optimistic UI update: persist locally, update DOM, and clear input immediately
+    // 1. Optimistic UI update: persist locally, update DOM, clear input, and scroll to bottom
     saveMessage(msg);
-    if (input) input.value = '';
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+
+    const container = document.getElementById('chat-messages-container');
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
 
     // 2. Asynchronous remote sync to Firestore (does not block user input)
     if (typeof FirebaseService !== 'undefined') {
       FirebaseService.sendChatMessage(currentRoomId, {
         id: msg.id,
-        author: currentUser,
+        author: currentUser || 'Guest',
         text: cleanedText,
         verified: isVerified,
-        timestamp: msg.timestamp
+        timestamp: msg.timestamp,
+        avatar: msg.avatar
       }).catch(err => {
         console.warn('FirebaseService sendChatMessage warning:', err);
       });

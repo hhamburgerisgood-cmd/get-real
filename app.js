@@ -233,6 +233,7 @@ window.addEventListener('DOMContentLoaded', () => {
   populateHeaderDropdown();
   setupReaderControls();
   updateBookmarksBadge();
+  if (typeof ChatApp !== 'undefined') ChatApp.init();
 
   // Load notes connected to AccountManager
   const noteArea = document.getElementById('scratchpad-text');
