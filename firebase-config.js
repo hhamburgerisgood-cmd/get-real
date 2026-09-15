@@ -104,7 +104,7 @@ const firebaseConfig = {
       const fetchRestMessages = async () => {
         if (isUnsubscribed || !firebaseConfig.apiKey || !firebaseConfig.projectId || typeof fetch === 'undefined') return;
         try {
-          const restUrl = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/chat_rooms/${roomId}/messages?key=${firebaseConfig.apiKey}`;
+          const restUrl = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/chat_rooms/${roomId}/messages?pageSize=100&key=${firebaseConfig.apiKey}`;
           const res = await fetch(restUrl);
           if (res.ok) {
             const data = await res.json();

@@ -860,7 +860,7 @@ const ChatApp = (() => {
     if (form) {
       form.onsubmit = (e) => {
         if (e && typeof e.preventDefault === 'function') e.preventDefault();
-        sendMessage();
+        sendMessage(e);
         return false;
       };
     }
@@ -868,8 +868,8 @@ const ChatApp = (() => {
     if (input) {
       input.onkeydown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendMessage();
+          if (e && typeof e.preventDefault === 'function') e.preventDefault();
+          sendMessage(e);
         }
       };
     }
@@ -877,7 +877,7 @@ const ChatApp = (() => {
     if (sendBtn) {
       sendBtn.onclick = (e) => {
         if (e && typeof e.preventDefault === 'function') e.preventDefault();
-        sendMessage();
+        sendMessage(e);
       };
     }
 
@@ -889,15 +889,21 @@ const ChatApp = (() => {
   async function sendMessage(e) {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
 
+    const input = document.getElementById('chat-input-box');
+    const text = input ? input.value.trim() : '';
+    if (!text) return;
+
     const now = Date.now();
-    if (now - lastSentTime < RATE_LIMIT_COOLDOWN_MS) {
-      alert('Please wait a moment before sending another message (rate limit cooldown).');
+    // Silent 150ms debounce to prevent duplicate event dispatches (no disruptive alert)
+    if (now - lastSentTime < 150) {
       return;
     }
+    lastSentTime = now;
 
     if (!currentUser) {
-      currentUser = (typeof AccountManager !== 'undefined') ? AccountManager.getUsername() : 'Guest';
+      currentUser = (typeof AccountManager !== 'undefined') ? AccountManager.getUsername() : (localStorage.getItem(STORAGE_USER) || 'Guest');
     }
+    currentUser = (currentUser || 'Guest').trim().replace(/^@+/, '') || 'Guest';
 
     const room = getCurrentRoom();
     if (isUserBannedFromRoom(room, currentUser)) {
@@ -906,30 +912,19 @@ const ChatApp = (() => {
       return;
     }
 
-    const input = document.getElementById('chat-input-box');
-    const text = input ? input.value.trim() : '';
-    if (!text) return;
-
-    lastSentTime = now;
-
     const cleanedText = typeof ProfanityFilter !== 'undefined' ? ProfanityFilter.clean(text) : text;
-
-    // Anti-impersonation check
-    if (typeof AccountManager !== 'undefined') {
-      const isAuth = AccountManager.isAuthenticated();
-      if (!isAuth && currentUser && currentUser.toLowerCase() !== 'guest' && AccountManager.isUsernameRegistered(currentUser)) {
-        alert('The username "@' + currentUser + '" is registered and password-protected.\n\nPlease log in, or choose a different nickname.');
-        AccountManager.openModal('login');
-        return;
-      }
-    }
-
     const isVerified = (typeof AccountManager !== 'undefined') ? AccountManager.isAuthenticated() : false;
+    let senderName = currentUser || 'Guest';
+
+    // If an unauthenticated user uses a name registered by someone else, label as Guest without blocking
+    if (typeof AccountManager !== 'undefined' && !isVerified && senderName.toLowerCase() !== 'guest' && AccountManager.isUsernameRegistered(senderName)) {
+      senderName = `${senderName} (Guest)`;
+    }
 
     const msg = {
       id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
       channel: currentRoomId,
-      user: currentUser || 'Guest',
+      user: senderName,
       verified: isVerified,
       avatar: (typeof AccountManager !== 'undefined') ? AccountManager.getAvatarKey() : 'logo_avatar',
       text: cleanedText,
@@ -946,13 +941,16 @@ const ChatApp = (() => {
     const container = document.getElementById('chat-messages-container');
     if (container) {
       container.scrollTop = container.scrollHeight;
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+      });
     }
 
     // 2. Asynchronous remote sync to Firestore (does not block user input)
     if (typeof FirebaseService !== 'undefined') {
       FirebaseService.sendChatMessage(currentRoomId, {
         id: msg.id,
-        author: currentUser || 'Guest',
+        author: msg.user,
         text: cleanedText,
         verified: isVerified,
         timestamp: msg.timestamp,
